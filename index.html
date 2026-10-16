@@ -72,7 +72,7 @@ button.btn:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
 <div class="wrap">
   <header>
     <h1>Le Dédale des Lames</h1>
-    <p class="lede">Chaque vendredi de cours, une flèche dans le message « je viens ». Elles sont postées dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera le ⬆️ de la sortie en haut à gauche. Ici, une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
+    <p class="lede">Chaque vendredi de cours, une flèche est postée dans le salon Discord « forme-2 » de Montpellier et apparaît aussi dans le calendrier juste en dessous. Elles sont postées dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera le ⬆️ de la sortie en haut à gauche. Ici, une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
     <div class="stats">
       <div class="stat"><b>26</b><span>cours, donc 26 flèches</span></div>
       <div class="stat"><b id="posted">0</b><span>déjà postées</span></div>
@@ -92,7 +92,7 @@ button.btn:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
         <button class="btn" id="toggle" type="button">Révéler la solution</button>
       </div>
       <form class="unlock" id="unlock" hidden>
-        <label for="code">Code du prof</label>
+        <label for="code">Code administrateur</label>
         <input id="code" type="password" autocomplete="off" required>
         <button class="btn" id="ok" type="submit">Valider</button>
         <span class="err" id="err" role="alert"></span>
@@ -100,7 +100,6 @@ button.btn:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
     </section>
     <section>
       <h2>Le calendrier des flèches</h2>
-      <p class="rules">Zone C (académie de Montpellier). Pas de cours pendant les vacances ni le <b>vendredi 7 mai</b> (pont de l’Ascension). Dernier cours le <b>vendredi 4 juin</b>.</p>
       <ol class="cal" id="cal"></ol>
     </section>
   </div>
