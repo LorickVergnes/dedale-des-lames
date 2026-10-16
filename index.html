@@ -1,5 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Le Dédale des Lames</title>
+<!--CLARITY-->
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
@@ -107,6 +108,7 @@ button.btn:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
     <h2>Les règles</h2>
     <p>Pars d’une case de la ligne du bas. Regarde sa flèche : tu peux atterrir sur <b>n’importe quelle case</b> dans cette direction, à 1, 2, 5 ou 10 cases. Recommence depuis la case d’arrivée. Le but est d’atteindre le ⬆️ en haut à gauche.</p>
     <p>Toutes les cases de la grille sont accessibles depuis le bas, mais <b>une seule case de départ</b> permet d’atteindre la sortie. Les 10 autres envoient tourner en rond pour toujours. Le chemin le plus court fait 25 sauts, et il est unique. Mes messages ne donnent que la direction, jamais la distance : lire les flèches dans l’ordre ne suffit pas pour tracer le chemin.</p>
+    <p id="mesure" hidden>Cette page mesure les visites et les parties de façon anonyme, sans cookie (Microsoft Clarity).</p>
   </section>
 </div>
 <script>
@@ -129,6 +131,11 @@ for(let y=0;y<N;y++)for(let x=0;x<N;x++){
 }
 function ray(x,y){if(x===0&&y===0)return[];const[dx,dy]=DV[M.grid[y][x]];const o=[];let a=x+dx,b=y+dy;while(a>=0&&a<N&&b>=0&&b<N){o.push([a,b]);a+=dx;b+=dy}return o}
 let trail=[];
+// Suivi des parties dans Microsoft Clarity (présent seulement en ligne) : une victoire en 25 sauts,
+// sans retour ni nouveau départ et très rapide, mérite un coup d’œil.
+const T={t0:0,departs:0,sauts:0,annulations:0,recommencements:0,gagne:false};
+function track(ev,tags){try{if(!window.clarity)return;for(const k in tags)clarity("set",k,String(tags[k]));clarity("event",ev);}catch{}}
+if(window.clarity){document.getElementById("mesure").hidden=false;track("visite",{fleches_publiees:posted});}
 const st=document.getElementById("status"),undo=document.getElementById("undo"),reset=document.getElementById("reset");
 function render(){
   Object.values(el).forEach(b=>b.classList.remove("trail","here","can"));
@@ -151,10 +158,21 @@ function render(){
 }
 function clickCell(x,y){
   if(!el[x+","+y].classList.contains("can"))return;
+  if(!trail.length){
+    T.departs++;if(!T.t0)T.t0=Date.now();
+    track("depart",{case_depart:x+1,departs:T.departs});
+  }else T.sauts++;
   trail.push([x,y]);render();
+  if(x===0&&y===0){
+    const sauts=trail.length-1,sansErreur=!T.annulations&&!T.recommencements&&T.departs===1;
+    const tags={victoire:"oui",sauts_victoire:sauts,sauts_total:T.sauts,annulations:T.annulations,recommencements:T.recommencements,departs:T.departs,duree_s:Math.round((Date.now()-T.t0)/1000),sans_erreur:sansErreur?"oui":"non",fleches_publiees:posted};
+    track(T.gagne?"victoire_rejouee":"victoire",tags);
+    if(!T.gagne&&sansErreur&&sauts===25)track("victoire_parfaite",{});
+    T.gagne=true;
+  }
 }
-undo.addEventListener("click",()=>{trail.pop();render()});
-reset.addEventListener("click",()=>{trail=[];render()});
+undo.addEventListener("click",()=>{if(trail.length)T.annulations++;trail.pop();render()});
+reset.addEventListener("click",()=>{if(trail.length)T.recommencements++;trail=[];render()});
 render();
 const fmt=new Intl.DateTimeFormat("fr-FR",{weekday:"short",day:"numeric",month:"short"});
 const cal=document.getElementById("cal");
@@ -200,9 +218,9 @@ form.addEventListener("submit",async ev=>{
   ok.disabled=true;err.textContent="Vérification…";
   try{path=await decrypt(code.value);}catch{path=null;}
   ok.disabled=false;
-  if(!path){err.textContent="Code incorrect.";code.select();return;}
+  if(!path){err.textContent="Code incorrect.";code.select();track("code_prof_faux",{});return;}
   code.value="";err.textContent="";form.hidden=true;
-  applySolution();setShown(true);
+  applySolution();setShown(true);track("code_prof_ok",{prof:"oui"});
 });
 </script>
 </body></html>

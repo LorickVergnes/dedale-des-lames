@@ -11,6 +11,15 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 2. **Settings → Pages → Build and deployment → Source : GitHub Actions.**
 3. **Actions → Publier le Dédale des Lames → Run workflow** pour la première publication.
 
+## Statistiques (Microsoft Clarity, facultatif)
+
+1. Créer un projet sur [clarity.microsoft.com](https://clarity.microsoft.com) et copier son **Project ID** (Settings → Overview).
+2. Dans Clarity, **Settings → Setup → Cookies : désactivé**, et **Masking : Strict**.
+3. Sur GitHub, **Settings → Secrets and variables → Actions → onglet Variables → New repository variable** : `CLARITY_ID` = le Project ID. Puis relancer l'Action.
+
+Événements envoyés : `visite`, `depart`, `victoire`, `victoire_parfaite` (25 sauts, aucun retour, aucun nouveau départ), `victoire_rejouee`, `code_prof_faux`, `code_prof_ok`.
+Étiquettes : `case_depart`, `departs`, `sauts_victoire`, `sauts_total`, `annulations`, `recommencements`, `duree_s`, `sans_erreur`, `fleches_publiees`, `prof`.
+
 ## Bon à savoir
 
 - Le dossier `prive/` (ignoré par git) garde la version complète `dedale-des-lames-complet.html`, utilisable hors ligne.

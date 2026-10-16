@@ -55,8 +55,19 @@ const data = {
   revealed: path.slice(0, posted),
   enc: { iter, salt: salt.toString("base64"), iv: iv.toString("base64"), ct: ct.toString("base64") },
 };
+// Microsoft Clarity : ajouté seulement si la variable CLARITY_ID est définie (en ligne), pas en local.
+const clarityId = clean(process.env.CLARITY_ID || "");
+if (clarityId && !/^[a-z0-9]{5,20}$/i.test(clarityId)) fail("CLARITY_ID invalide (lettres et chiffres uniquement).");
+const claritySnippet = clarityId
+  ? `<script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${clarityId}");</script>`
+  : "";
+
 const html = readFileSync("index.html", "utf8");
 if (!html.includes("/*DATA*/null")) fail("marqueur /*DATA*/null introuvable dans index.html.");
+if (!html.includes("<!--CLARITY-->")) fail("marqueur <!--CLARITY--> introuvable dans index.html.");
 mkdirSync("dist", { recursive: true });
-writeFileSync("dist/index.html", html.replace("/*DATA*/null", () => JSON.stringify(data)));
-console.log(`dist/index.html construit le ${today} : ${posted}/${fridays.length} flèches publiées.`);
+writeFileSync("dist/index.html", html
+  .replace("<!--CLARITY-->", () => claritySnippet)
+  .replace("/*DATA*/null", () => JSON.stringify(data)));
+console.log(`dist/index.html construit le ${today} : ${posted}/${fridays.length} flèches publiées` +
+  (clarityId ? ", avec Clarity." : ", sans Clarity."));

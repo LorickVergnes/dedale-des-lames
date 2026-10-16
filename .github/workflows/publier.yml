@@ -36,6 +36,7 @@ jobs:
         env:
           SOLUTION_JSON: ${{ secrets.SOLUTION_JSON }}
           REVEAL_PASSWORD: ${{ secrets.REVEAL_PASSWORD }}
+          CLARITY_ID: ${{ vars.CLARITY_ID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
