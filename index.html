@@ -1,0 +1,208 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Le Dédale des Lames</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: en-tête + compteurs, plateau 11×11 jouable à gauche, calendrier des flèches à droite */
+:root{
+  --bg:#eef1f6; --paper:#ffffff; --ink:#1b2440; --muted:#5b6582; --line:#cfd6e4;
+  --accent:#2f4fd8; --accentSoft:#dfe5ff; --mark:#ffe14d; --markInk:#1b2440; --done:#1f8a5b; --trail:#c9d3ff;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10142a; --paper:#171c36; --ink:#e6e9f5; --muted:#9aa3c2; --line:#2c3459;
+  --accent:#8ea2ff; --accentSoft:#283266; --mark:#e8c92e; --markInk:#10142a; --done:#4fd39a; --trail:#323d78; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10142a; --paper:#171c36; --ink:#e6e9f5; --muted:#9aa3c2; --line:#2c3459;
+  --accent:#8ea2ff; --accentSoft:#283266; --mark:#e8c92e; --markInk:#10142a; --done:#4fd39a; --trail:#323d78; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,6vw,52px);line-height:1;margin:0;text-wrap:balance;letter-spacing:-.02em}
+h2{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0 0 4px}
+.lede{color:var(--muted);max-width:64ch;margin:10px 0 0}
+.lede b,.rules b{color:var(--ink)}
+.stats{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:18px;font-variant-numeric:tabular-nums}
+.stat b{display:block;font-family:var(--f-display);font-size:34px;line-height:1}
+.stat span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:800px){.main{grid-template-columns:1fr}}
+.board{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;gap:8px}
+.tag{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.gridbox{position:relative;width:100%;max-width:580px;aspect-ratio:1;margin:0 auto}
+.cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);border:1px solid var(--line)}
+.c{display:grid;place-items:center;font-size:clamp(15px,3.6vw,26px);font-weight:600;color:var(--ink);position:relative;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;padding:0;font-family:var(--f-body);cursor:default;transition:background .15s}
+.c small{position:absolute;top:1px;left:3px;font:500 8px var(--f-mono);color:var(--markInk);opacity:0}
+.c.exit{box-shadow:inset 0 0 0 2px var(--accent)}
+.c.row{box-shadow:inset 0 -3px 0 var(--accent)}
+.c.trail{background:var(--trail)}
+.c.here{background:var(--accent);color:var(--paper)}
+.c.can{background:var(--accentSoft);cursor:pointer;outline:2px dashed var(--accent);outline-offset:-4px}
+.c:focus-visible{outline:3px solid var(--mark);outline-offset:-3px}
+.show .c.p{background:var(--mark);color:var(--markInk)}
+.show .c.p small{opacity:.85}
+svg.route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .25s}
+.show svg.route{opacity:1}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button.btn{font:600 14px var(--f-body);border:1px solid var(--accent);background:var(--accent);color:var(--paper);border-radius:999px;padding:7px 15px;cursor:pointer}
+button.btn.ghost{background:transparent;color:var(--accent)}
+button.btn:disabled{opacity:.4;cursor:default}
+button.btn:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+.status{font-size:14px;color:var(--muted);min-height:1.5em;font-variant-numeric:tabular-nums}
+.status.win{color:var(--done);font-weight:600}
+.cal{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:2px;font-variant-numeric:tabular-nums}
+.cal li{display:grid;grid-template-columns:2.4em 1fr auto;gap:10px;align-items:center;padding:5px 10px;border-radius:4px}
+.cal li:nth-child(odd){background:var(--paper)}
+.cal .n{font:500 12px var(--f-mono);color:var(--muted)}
+.cal .a{font-size:19px}
+.cal li.done .d::after{content:" · posté";color:var(--done);font-size:12px;font-weight:600}
+.cal li.next{outline:2px solid var(--accent)}
+.cal li.gap{background:transparent!important;font-size:11px;color:var(--muted);padding:2px 10px;grid-template-columns:1fr;letter-spacing:.05em;text-transform:uppercase}
+.cal .a.unk{font:500 15px var(--f-mono);color:var(--muted)}
+.rules{font-size:14px;color:var(--muted);max-width:66ch}
+.unlock{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.unlock label{font-size:13px;color:var(--muted)}
+.unlock input{font:500 14px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:7px 14px;min-width:0;flex:1 1 140px;max-width:240px}
+.unlock input:focus-visible{outline:3px solid var(--mark);outline-offset:1px}
+.unlock .err{font-size:13px;color:#c0392b;min-height:1.2em}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+  <header>
+    <h1>Le Dédale des Lames</h1>
+    <p class="lede">Chaque vendredi de cours, une flèche dans le message « je viens ». Elles sont postées dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera le ⬆️ de la sortie en haut à gauche. Ici, une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
+    <div class="stats">
+      <div class="stat"><b>26</b><span>cours, donc 26 flèches</span></div>
+      <div class="stat"><b id="posted">0</b><span>déjà postées</span></div>
+      <div class="stat"><b>25</b><span>sauts minimum</span></div>
+      <div class="stat"><b>1</b><span>départ sur 11 qui mène à la sortie</span></div>
+    </div>
+  </header>
+  <div class="main">
+    <section class="board" aria-label="Dédale jouable">
+      <div class="tag">↑ Sortie : le ⬆️ en haut à gauche</div>
+      <div class="gridbox" id="gb"><div class="cells" id="cells"></div><svg class="route" id="route" viewBox="0 0 11 11" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+      <div class="tag">Départ : une des 11 cases soulignées</div>
+      <div class="status" id="status">Clique une case de la ligne du bas pour commencer.</div>
+      <div class="controls">
+        <button class="btn ghost" id="undo" type="button" disabled>Revenir d’un saut</button>
+        <button class="btn ghost" id="reset" type="button" disabled>Recommencer</button>
+        <button class="btn" id="toggle" type="button">Révéler la solution</button>
+      </div>
+      <form class="unlock" id="unlock" hidden>
+        <label for="code">Code du prof</label>
+        <input id="code" type="password" autocomplete="off" required>
+        <button class="btn" id="ok" type="submit">Valider</button>
+        <span class="err" id="err" role="alert"></span>
+      </form>
+    </section>
+    <section>
+      <h2>Le calendrier des flèches</h2>
+      <p class="rules">Zone C (académie de Montpellier). Pas de cours pendant les vacances ni le <b>vendredi 7 mai</b> (pont de l’Ascension). Dernier cours le <b>vendredi 4 juin</b>.</p>
+      <ol class="cal" id="cal"></ol>
+    </section>
+  </div>
+  <section class="rules">
+    <h2>Les règles</h2>
+    <p>Pars d’une case de la ligne du bas. Regarde sa flèche : tu peux atterrir sur <b>n’importe quelle case</b> dans cette direction, à 1, 2, 5 ou 10 cases. Recommence depuis la case d’arrivée. Le but est d’atteindre le ⬆️ en haut à gauche.</p>
+    <p>Toutes les cases de la grille sont accessibles depuis le bas, mais <b>une seule case de départ</b> permet d’atteindre la sortie. Les 10 autres envoient tourner en rond pour toujours. Le chemin le plus court fait 25 sauts, et il est unique. Mes messages ne donnent que la direction, jamais la distance : lire les flèches dans l’ordre ne suffit pas pour tracer le chemin.</p>
+  </section>
+</div>
+<script>
+// Données injectées par build.mjs : grille, dates, flèches déjà postées et solution complète chiffrée.
+const M=/*DATA*/null;
+const N=M.n;
+const AR={N:"↑",NE:"↗",E:"→",SE:"↘",S:"↓",SW:"↙",W:"←",NW:"↖"};
+const EM={N:"⬆️",NE:"↗️",E:"➡️",SE:"↘️",S:"⬇️",SW:"↙️",W:"⬅️",NW:"↖️"};
+const DV={N:[0,-1],NE:[1,-1],E:[1,0],SE:[1,1],S:[0,1],SW:[-1,1],W:[-1,0],NW:[-1,-1]};
+const posted=M.revealed.length;
+let path=null; // solution complète du départ à la sortie, connue seulement après le code prof
+document.getElementById("posted").textContent=posted;
+const cellsEl=document.getElementById("cells"),el={};
+for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+  const b=document.createElement("button");b.type="button";b.className="c";b.textContent=AR[M.grid[y][x]];
+  b.setAttribute("aria-label","case "+(x+1)+", "+(y+1)+", flèche "+M.grid[y][x]);
+  if(x===0&&y===0)b.classList.add("exit"); if(y===N-1)b.classList.add("row");
+  b.addEventListener("click",()=>clickCell(x,y));
+  cellsEl.appendChild(b); el[x+","+y]=b;
+}
+function ray(x,y){if(x===0&&y===0)return[];const[dx,dy]=DV[M.grid[y][x]];const o=[];let a=x+dx,b=y+dy;while(a>=0&&a<N&&b>=0&&b<N){o.push([a,b]);a+=dx;b+=dy}return o}
+let trail=[];
+const st=document.getElementById("status"),undo=document.getElementById("undo"),reset=document.getElementById("reset");
+function render(){
+  Object.values(el).forEach(b=>b.classList.remove("trail","here","can"));
+  let can=[];
+  if(!trail.length){for(let x=0;x<N;x++)can.push([x,N-1]);}
+  else{
+    trail.forEach(([x,y])=>el[x+","+y].classList.add("trail"));
+    const [hx,hy]=trail[trail.length-1];el[hx+","+hy].classList.remove("trail");el[hx+","+hy].classList.add("here");
+    can=ray(hx,hy);
+  }
+  can.forEach(([x,y])=>el[x+","+y].classList.add("can"));
+  st.classList.remove("win");
+  if(!trail.length) st.textContent="Clique une case de la ligne du bas pour commencer.";
+  else{
+    const [hx,hy]=trail[trail.length-1];
+    if(hx===0&&hy===0){st.textContent="Sortie atteinte en "+(trail.length-1)+" sauts. Bravo !";st.classList.add("win");}
+    else st.textContent=(trail.length-1)+" saut"+(trail.length>2?"s":"")+". Choisis une case en pointillés.";
+  }
+  undo.disabled=!trail.length;reset.disabled=!trail.length;
+}
+function clickCell(x,y){
+  if(!el[x+","+y].classList.contains("can"))return;
+  trail.push([x,y]);render();
+}
+undo.addEventListener("click",()=>{trail.pop();render()});
+reset.addEventListener("click",()=>{trail=[];render()});
+render();
+const fmt=new Intl.DateTimeFormat("fr-FR",{weekday:"short",day:"numeric",month:"short"});
+const cal=document.getElementById("cal");
+const breaks={"2026-11-06":"Vacances de la Toussaint","2027-01-08":"Vacances de Noël","2027-02-26":"Vacances d’hiver","2027-04-23":"Vacances de printemps","2027-05-14":"Pont de l’Ascension (7 mai)"};
+function renderCal(){
+  const known=path||M.revealed;
+  cal.textContent="";
+  M.fridays.forEach((f,i)=>{
+    if(breaks[f]){const g=document.createElement("li");g.className="gap";g.textContent="— "+breaks[f]+" —";cal.appendChild(g);}
+    const li=document.createElement("li");
+    if(i<posted)li.classList.add("done"); if(i===posted)li.classList.add("next");
+    const a=i<known.length?EM[M.grid[known[i][1]][known[i][0]]]:"?";
+    li.innerHTML='<span class="n">'+String(i+1).padStart(2,"0")+'</span><span class="d">'+fmt.format(new Date(f+"T12:00:00"))+'</span><span class="a'+(i<known.length?'':' unk')+'">'+a+'</span>';
+    cal.appendChild(li);
+  });
+}
+renderCal();
+// Révélation : le code prof déchiffre la solution (PBKDF2 + AES-GCM), il n'est stocké nulle part.
+const gb=document.getElementById("gb"),t=document.getElementById("toggle");
+const form=document.getElementById("unlock"),code=document.getElementById("code"),ok=document.getElementById("ok"),err=document.getElementById("err");
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function decrypt(pw){
+  const e=M.enc,s=crypto.subtle;
+  const km=await s.importKey("raw",new TextEncoder().encode(pw.normalize("NFC")),"PBKDF2",false,["deriveKey"]);
+  const key=await s.deriveKey({name:"PBKDF2",salt:b64(e.salt),iterations:e.iter,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
+  return JSON.parse(new TextDecoder().decode(await s.decrypt({name:"AES-GCM",iv:b64(e.iv)},key,b64(e.ct))));
+}
+function applySolution(){
+  path.forEach(([x,y],i)=>{const b=el[x+","+y];b.classList.add("p");const s=document.createElement("small");s.textContent=i+1;b.appendChild(s);});
+  const pts=path.map(p=>(p[0]+.5)+","+(p[1]+.5)).concat(["0.5,0"]).join(" ");
+  document.getElementById("route").innerHTML='<polyline points="'+pts+'" fill="none" stroke="var(--accent)" stroke-width="0.07" stroke-linejoin="round" opacity="0.85"/>';
+  renderCal();
+}
+function setShown(on){gb.classList.toggle("show",on);t.textContent=on?"Cacher la solution":"Révéler la solution";t.classList.toggle("ghost",on);}
+t.addEventListener("click",()=>{
+  if(path){setShown(!gb.classList.contains("show"));return;}
+  form.hidden=!form.hidden;err.textContent="";
+  if(!form.hidden)code.focus();
+});
+form.addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  if(!window.crypto||!crypto.subtle){err.textContent="Déchiffrement impossible ici : ouvre la page en https (GitHub Pages).";return;}
+  ok.disabled=true;err.textContent="Vérification…";
+  try{path=await decrypt(code.value);}catch{path=null;}
+  ok.disabled=false;
+  if(!path){err.textContent="Code incorrect.";code.select();return;}
+  code.value="";err.textContent="";form.hidden=true;
+  applySolution();setShown(true);
+});
+</script>
+</body></html>

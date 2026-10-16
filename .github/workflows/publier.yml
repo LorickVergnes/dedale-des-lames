@@ -1,0 +1,44 @@
+name: Publier le Dédale des Lames
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Chaque vendredi à 20 h 30 à Paris. Le cron est en UTC : 18 h 30 UTC en heure d'été,
+    # 19 h 30 UTC en heure d'hiver. build.mjs ne publie la flèche qu'à partir de 20 h 30 à Paris,
+    # donc le passage qui tombe à 19 h 30 en hiver ne publie rien de nouveau.
+    - cron: "30 18 * * 5"
+    - cron: "30 19 * * 5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Construire la page
+        run: node build.mjs
+        env:
+          SOLUTION_JSON: ${{ secrets.SOLUTION_JSON }}
+          REVEAL_PASSWORD: ${{ secrets.REVEAL_PASSWORD }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

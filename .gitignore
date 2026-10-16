@@ -1,0 +1,5 @@
+# Contient la solution complète et le code : ne jamais publier.
+prive/
+dist/
+# Réglages de l'IDE
+.idea/
