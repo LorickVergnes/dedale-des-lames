@@ -1,129 +1,480 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Le Dédale des Lames</title>
+<meta name="description" content="Le labyrinthe des vendredis de LudoSport Montpellier : une flèche par cours, une seule sortie.">
+<meta name="theme-color" content="#08090f">
 <!--CLARITY-->
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn-uicons.flaticon.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: en-tête + compteurs, plateau 11×11 jouable à gauche, calendrier des flèches à droite */
+/* Icônes Flaticon UIcons (bold rounded) : seulement celles utilisées, la police vient du CDN Flaticon. */
+@font-face{font-family:"uicons-bold-rounded";src:url("https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/webfonts/uicons-bold-rounded.woff2") format("woff2");font-display:block}
+.fi{display:inline-flex;line-height:1}
+.fi:before{font-family:"uicons-bold-rounded"!important;font-style:normal;font-weight:normal!important;line-height:1;-webkit-font-smoothing:antialiased}
+.fi-br-undo:before{content:"\f08e"}.fi-br-rotate-right:before{content:"\ed2a"}.fi-br-eye:before{content:"\e62c"}.fi-br-eye-crossed:before{content:"\e62f"}.fi-br-lock:before{content:"\e9c5"}.fi-br-unlock:before{content:"\f095"}.fi-br-calendar:before{content:"\e2a1"}.fi-br-trophy:before{content:"\f04d"}.fi-br-info:before{content:"\e8ce"}.fi-br-flag-checkered:before{content:"\e6f1"}.fi-br-play:before{content:"\ec28"}.fi-br-cross-small:before{content:"\e4d0"}.fi-br-sword:before{content:"\ef3f"}.fi-br-route:before{content:"\ed2d"}.fi-br-bolt:before{content:"\e1ce"}.fi-br-map-marker:before{content:"\e9f4"}.fi-br-key:before{content:"\e922"}.fi-br-book-open-cover:before{content:"\e1e5"}.fi-br-sparkles:before{content:"\ee79"}.fi-br-hourglass-end:before{content:"\e87f"}
+
+/* Palette « kyber nocturne » : encre bleu nuit, ambre (le joueur, couleur LudoSport) et cyan kyber (la sortie, la solution). */
 :root{
-  --bg:#eef1f6; --paper:#ffffff; --ink:#1b2440; --muted:#5b6582; --line:#cfd6e4;
-  --accent:#2f4fd8; --accentSoft:#dfe5ff; --mark:#ffe14d; --markInk:#1b2440; --done:#1f8a5b; --trail:#c9d3ff;
-  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
-  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  color-scheme:dark;
+  --bg:#08090f; --bg2:#0c0e18;
+  --surface:#11141f; --surface2:#171b2a; --surface3:#1f2436;
+  --border:#232839; --border2:#323850;
+  --text:#eef0fa; --text2:#a9afc6; --text3:#6d7391;
+  --amber:#ff8b3d; --amber2:#ffb27a; --amberDeep:#e2671c; --amberA:rgba(255,139,61,.14); --amberGlow:rgba(255,139,61,.45);
+  --cyan:#5ad1f5; --cyanA:rgba(90,209,245,.12); --cyanGlow:rgba(90,209,245,.45);
+  --rose:#ff6b81;
+  --r-lg:20px; --r-md:14px;
+  --f-display:"Chakra Petch",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Manrope",ui-sans-serif,system-ui,sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --gutter:max(16px,env(safe-area-inset-left,0px));
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#10142a; --paper:#171c36; --ink:#e6e9f5; --muted:#9aa3c2; --line:#2c3459;
-  --accent:#8ea2ff; --accentSoft:#283266; --mark:#e8c92e; --markInk:#10142a; --done:#4fd39a; --trail:#323d78; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#10142a; --paper:#171c36; --ink:#e6e9f5; --muted:#9aa3c2; --line:#2c3459;
-  --accent:#8ea2ff; --accentSoft:#283266; --mark:#e8c92e; --markInk:#10142a; --done:#4fd39a; --trail:#323d78; color-scheme:dark}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
-.wrap{max-width:1040px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
-h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,6vw,52px);line-height:1;margin:0;text-wrap:balance;letter-spacing:-.02em}
-h2{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0 0 4px}
-.lede{color:var(--muted);max-width:64ch;margin:10px 0 0}
-.lede b,.rules b{color:var(--ink)}
-.stats{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:18px;font-variant-numeric:tabular-nums}
-.stat b{display:block;font-family:var(--f-display);font-size:34px;line-height:1}
-.stat span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:28px;align-items:start}
-@media (max-width:800px){.main{grid-template-columns:1fr}}
-.board{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;gap:8px}
-.tag{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
-.gridbox{position:relative;width:100%;max-width:580px;aspect-ratio:1;margin:0 auto}
-.cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);border:1px solid var(--line)}
-.c{display:grid;place-items:center;font-size:clamp(15px,3.6vw,26px);font-weight:600;color:var(--ink);position:relative;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;padding:0;font-family:var(--f-body);cursor:default;transition:background .15s}
-.c small{position:absolute;top:1px;left:3px;font:500 8px var(--f-mono);color:var(--markInk);opacity:0}
-.c.exit{box-shadow:inset 0 0 0 2px var(--accent)}
-.c.row{box-shadow:inset 0 -3px 0 var(--accent)}
-.c.trail{background:var(--trail)}
-.c.here{background:var(--accent);color:var(--paper)}
-.c.can{background:var(--accentSoft);cursor:pointer;outline:2px dashed var(--accent);outline-offset:-4px}
-.c:focus-visible{outline:3px solid var(--mark);outline-offset:-3px}
-.show .c.p{background:var(--mark);color:var(--markInk)}
-.show .c.p small{opacity:.85}
-svg.route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .25s}
-.show svg.route{opacity:1}
-.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-button.btn{font:600 14px var(--f-body);border:1px solid var(--accent);background:var(--accent);color:var(--paper);border-radius:999px;padding:7px 15px;cursor:pointer}
-button.btn.ghost{background:transparent;color:var(--accent)}
-button.btn:disabled{opacity:.4;cursor:default}
-button.btn:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
-.status{font-size:14px;color:var(--muted);min-height:1.5em;font-variant-numeric:tabular-nums}
-.status.win{color:var(--done);font-weight:600}
-.cal{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:2px;font-variant-numeric:tabular-nums}
-.cal li{display:grid;grid-template-columns:2.4em 1fr auto;gap:10px;align-items:center;padding:5px 10px;border-radius:4px}
-.cal li:nth-child(odd){background:var(--paper)}
-.cal .n{font:500 12px var(--f-mono);color:var(--muted)}
-.cal .a{font-size:19px}
-.cal li.done .d::after{content:" · posté";color:var(--done);font-size:12px;font-weight:600}
-.cal li.next{outline:2px solid var(--accent)}
-.cal li.gap{background:transparent!important;font-size:11px;color:var(--muted);padding:2px 10px;grid-template-columns:1fr;letter-spacing:.05em;text-transform:uppercase}
-.cal .a.unk{font:500 15px var(--f-mono);color:var(--muted)}
-.rules{font-size:14px;color:var(--muted);max-width:66ch}
-.unlock{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.unlock label{font-size:13px;color:var(--muted)}
-.unlock input{font:500 14px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:7px 14px;min-width:0;flex:1 1 140px;max-width:240px}
-.unlock input:focus-visible{outline:3px solid var(--mark);outline-offset:1px}
-.unlock .err{font-size:13px;color:#c0392b;min-height:1.2em}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font:500 16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 100% -10%,rgba(90,209,245,.10),transparent 65%),
+    radial-gradient(800px 600px at -10% 105%,rgba(255,139,61,.12),transparent 65%),
+    linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px) 0 0/44px 44px,
+    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px) 0 0/44px 44px,
+    var(--bg)}
+::selection{background:var(--amber);color:#1a0b00}
+a{color:var(--amber2);text-underline-offset:3px}
+b{font-weight:800;color:var(--text)}
+.container{width:100%;max-width:1180px;margin:0 auto;padding-inline:var(--gutter)}
+.ar{width:1em;height:1em;display:block;transform:rotate(var(--r,0deg));overflow:visible}
+
+/* Boutons */
+.btn{--bh:44px;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:var(--bh);padding:0 18px;border-radius:12px;border:1px solid transparent;font:700 15px var(--f-body);letter-spacing:.01em;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .18s,border-color .18s,color .18s,box-shadow .18s,transform .18s}
+.btn .fi{font-size:15px}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:focus-visible{outline:2px solid var(--amber2);outline-offset:3px}
+.btn-primary{background:linear-gradient(180deg,var(--amber2),var(--amber) 55%,var(--amberDeep));color:#1c0c00;box-shadow:0 8px 24px -8px var(--amberGlow),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn-primary:hover{box-shadow:0 10px 30px -6px var(--amberGlow),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-ghost{background:var(--surface2);border-color:var(--border2);color:var(--text)}
+.btn-ghost:hover:not(:disabled){border-color:var(--text3);background:var(--surface3)}
+.btn-cyan{background:var(--cyanA);border-color:rgba(90,209,245,.4);color:var(--cyan)}
+.btn-cyan:hover{background:rgba(90,209,245,.2)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn-sm{--bh:38px;padding:0 14px;font-size:14px;border-radius:10px}
+
+/* En-tête fixe */
+.top{position:sticky;top:0;z-index:20;background:rgba(8,9,15,.72);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+.top .container{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.brand{display:flex;align-items:center;gap:12px;color:var(--text);text-decoration:none;min-width:0}
+.logo{width:40px;height:40px;flex:none;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,var(--surface3),var(--surface));border:1px solid var(--border2);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.logo svg{width:28px;height:28px}
+.brand-t{display:grid;line-height:1.1;min-width:0}
+.brand-t strong{font:700 17px var(--f-display);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap}
+.brand-t span{font:600 11px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--text3);white-space:nowrap}
+.nav{display:flex;align-items:center;gap:4px}
+.nav a{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;color:var(--text2);font:700 14px var(--f-body);text-decoration:none;transition:background .18s,color .18s}
+.nav a .fi{font-size:14px;color:var(--text3);transition:color .18s}
+.nav a:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav a:hover .fi{color:var(--amber)}
+.nav .btn{margin-left:8px;color:#1c0c00}
+.nav .btn .fi,.nav .btn:hover .fi{color:#1c0c00}
+@media (max-width:860px){.nav a:not(.btn){display:none}}
+@media (max-width:420px){.brand-t span{display:none}.brand-t strong{font-size:15px}.logo{width:36px;height:36px}}
+
+/* Hero */
+.hero{padding:56px 0 32px}
+.hero .container{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr);gap:40px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--border2);font:700 12px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--text2)}
+.eyebrow .fi{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--amberA);color:var(--amber);font-size:11px}
+h1{margin:18px 0 0;font:700 clamp(44px,7.4vw,88px)/.92 var(--f-display);letter-spacing:-.015em;text-transform:uppercase;text-wrap:balance}
+h1 .l2{display:block;background:linear-gradient(92deg,var(--amber2),var(--amber) 45%,#ff6a3d);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 30px rgba(255,139,61,.28))}
+.saber{position:relative;height:4px;width:min(360px,70%);margin:22px 0 20px 30px;border-radius:4px;background:linear-gradient(90deg,#fff6ec,var(--amber2) 30%,var(--amber) 80%,transparent);box-shadow:0 0 14px var(--amberGlow),0 0 36px rgba(255,139,61,.3);transform-origin:left center;animation:ignite 1s cubic-bezier(.2,.8,.2,1) .15s both}
+.saber::before{content:"";position:absolute;left:-30px;top:50%;width:30px;height:12px;transform:translateY(-50%);border-radius:3px;background:linear-gradient(180deg,#9aa1b8,#4b5168);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+@keyframes ignite{from{transform:scaleX(0);opacity:.2}to{transform:scaleX(1);opacity:1}}
+.tagline{margin:0 0 10px;font:700 clamp(18px,2.2vw,22px)/1.35 var(--f-display);color:var(--text)}
+.lede{margin:0;max-width:60ch;color:var(--text2);text-wrap:pretty}
+.inline-ar{display:inline-grid;place-items:center;vertical-align:-4px;width:20px;height:20px;border-radius:6px;background:var(--cyanA);color:var(--cyan);font-size:13px}
+.hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+
+.season{position:relative;padding:24px;border-radius:var(--r-lg);background:linear-gradient(180deg,rgba(23,27,42,.92),rgba(17,20,31,.92));border:1px solid var(--border2);box-shadow:0 30px 60px -30px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05);overflow:hidden}
+.season::after{content:"";position:absolute;inset:-1px -1px auto auto;width:220px;height:220px;background:radial-gradient(closest-side,rgba(255,139,61,.16),transparent);pointer-events:none}
+.season-h{display:flex;align-items:center;justify-content:space-between;gap:12px;font:700 12px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--text3)}
+.live{display:inline-flex;align-items:center;gap:7px;color:var(--amber2)}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--amber);animation:ping 2s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 var(--amberGlow)}70%{box-shadow:0 0 0 9px rgba(255,139,61,0)}100%{box-shadow:0 0 0 0 rgba(255,139,61,0)}}
+.count{display:flex;align-items:baseline;gap:8px;margin:14px 0 4px;font-family:var(--f-display)}
+.count b{font:700 64px/1 var(--f-display);color:var(--text);font-variant-numeric:tabular-nums}
+.count span{font-size:26px;font-weight:600;color:var(--text3)}
+.count-l{margin:0;color:var(--text2);font-size:14px}
+.segs{display:grid;grid-template-columns:repeat(26,1fr);gap:3px;margin:18px 0 20px}
+.seg{height:10px;border-radius:3px;background:var(--surface3)}
+.seg.on{background:linear-gradient(180deg,var(--amber2),var(--amber));box-shadow:0 0 8px rgba(255,139,61,.45)}
+.seg.nx{background:transparent;box-shadow:inset 0 0 0 1.5px var(--amber);animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+.nextbox{display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--r-md);background:rgba(8,9,15,.55);border:1px solid var(--border)}
+.nextbox .ico{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--amberA);color:var(--amber);font-size:18px}
+.nextbox small{display:block;font:700 11px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.nextbox strong{display:block;font:700 15px var(--f-body);color:var(--text)}
+.nextbox em{font-style:normal;font:700 13px var(--f-mono);color:var(--amber2)}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.fact{padding:12px 10px;border-radius:12px;background:rgba(8,9,15,.4);border:1px solid var(--border);text-align:center}
+.fact b{display:block;font:700 22px/1.1 var(--f-display);color:var(--text)}
+.fact span{display:block;margin-top:3px;font:600 11px/1.3 var(--f-body);color:var(--text3)}
+
+/* Sections */
+section{scroll-margin-top:84px}
+.sec-h{margin-bottom:18px}
+.sec-h h2{margin:6px 0 0;font:700 clamp(24px,3.2vw,32px)/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.01em}
+.kicker{display:inline-flex;align-items:center;gap:8px;font:700 12px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+
+/* Jeu */
+.game{padding:24px 0 40px}
+.game-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:20px;align-items:start}
+@media (max-width:980px){.game-grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:linear-gradient(180deg,rgba(23,27,42,.85),rgba(17,20,31,.85));border:1px solid var(--border2);border-radius:var(--r-lg);box-shadow:0 30px 60px -36px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border)}
+.panel-h h3{display:flex;align-items:center;gap:10px;margin:0;font:700 17px var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.panel-h h3 .fi{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--amberA);color:var(--amber);font-size:14px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--border2);font:700 13px var(--f-mono);color:var(--text2);white-space:nowrap}
+.chip b{color:var(--amber2);font-weight:700}
+.panel-b{padding:18px}
+.board{display:grid;gap:14px}
+
+.gridbox{position:relative;width:100%;max-width:640px;aspect-ratio:1;margin:0 auto}
+.cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);gap:3px;padding:3px;border-radius:16px;background:rgba(5,6,11,.75);border:1px solid var(--border2);box-shadow:inset 0 2px 12px rgba(0,0,0,.5)}
+.c{position:relative;display:grid;place-items:center;min-width:0;padding:0;border:0;border-radius:clamp(4px,1vw,8px);background:var(--surface);color:#7c829f;font-size:clamp(13px,3.1vw,24px);cursor:default;transition:background .16s,color .16s,box-shadow .16s,transform .16s;-webkit-tap-highlight-color:transparent}
+.c .ar{width:.95em;height:.95em;transition:transform .16s}
+.c small{position:absolute;top:2px;left:3px;font:700 clamp(7px,1.3vw,10px)/1 var(--f-mono);color:var(--cyan);opacity:0;transition:opacity .2s}
+.c.row::after{content:"";position:absolute;left:22%;right:22%;bottom:3px;height:3px;border-radius:3px;background:var(--amber);opacity:.55}
+.c.exit{color:var(--cyan);background:linear-gradient(180deg,rgba(90,209,245,.18),rgba(90,209,245,.06));box-shadow:inset 0 0 0 1.5px rgba(90,209,245,.7),0 0 18px -4px var(--cyanGlow)}
+.c.trail{color:var(--amber2)}
+.c.can{cursor:pointer;color:#fff;background:linear-gradient(180deg,rgba(255,139,61,.38),rgba(255,139,61,.2));box-shadow:inset 0 0 0 2px var(--amber2),0 0 16px -6px var(--amberGlow)}
+.c.can::after{opacity:1}
+.c.exit.can{background:linear-gradient(180deg,rgba(90,209,245,.35),rgba(90,209,245,.15));box-shadow:inset 0 0 0 2px var(--cyan),0 0 22px -2px var(--cyanGlow);color:#fff}
+@media (hover:hover){.c.can:hover{background:linear-gradient(180deg,rgba(255,139,61,.6),rgba(255,139,61,.36));transform:translateY(-1px)}.c.can:hover .ar{transform:rotate(var(--r)) scale(1.12)}}
+.c.here{z-index:2;color:#1c0c00;background:linear-gradient(180deg,var(--amber2),var(--amber));box-shadow:0 0 0 2px rgba(255,255,255,.18),0 8px 22px -4px var(--amberGlow);transform:scale(1.06)}
+.c.here::after{display:none}
+.c:focus-visible{outline:2px solid #fff;outline-offset:1px;z-index:3}
+.show .c.p{background:linear-gradient(180deg,rgba(90,209,245,.22),rgba(90,209,245,.08));color:var(--cyan)}
+.show .c.p small{opacity:1}
+svg.lines{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);pointer-events:none;overflow:visible;z-index:1}
+#trailsvg polyline{fill:none;stroke:var(--amber);stroke-width:.055;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+#trailsvg circle{fill:var(--amber)}
+#route{opacity:0;transition:opacity .35s}
+#route polyline{fill:none;stroke:var(--cyan);stroke-width:.08;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:.26 .14;opacity:.95}
+.show #route{opacity:1}
+.win{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:16px;border-radius:16px;background:rgba(8,9,15,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fade .3s ease-out}
+@keyframes fade{from{opacity:0}}
+.win-card{width:min(360px,100%);text-align:center;padding:26px 22px;border-radius:var(--r-lg);background:linear-gradient(180deg,var(--surface3),var(--surface));border:1px solid rgba(90,209,245,.4);box-shadow:0 30px 60px -20px rgba(0,0,0,.8),0 0 40px -10px var(--cyanGlow);animation:pop .4s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.92);opacity:0}}
+.win-ico{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--amber2),var(--amber));color:#1c0c00;font-size:28px;box-shadow:0 0 0 6px rgba(255,139,61,.15),0 12px 30px -6px var(--amberGlow)}
+.win h4{margin:0;font:700 26px var(--f-display);text-transform:uppercase}
+.win p{margin:6px 0 0;color:var(--text2)}
+.best{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:5px 12px;border-radius:999px;background:var(--cyanA);color:var(--cyan);font:700 13px var(--f-body)}
+.win-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:18px}
+
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font:600 13px var(--f-body);color:var(--text3)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:14px;height:14px;border-radius:4px;flex:none}
+.lg-here{background:linear-gradient(180deg,var(--amber2),var(--amber))}
+.lg-can{background:rgba(255,139,61,.32);box-shadow:inset 0 0 0 2px var(--amber2)}
+.lg-start{background:var(--surface3);box-shadow:inset 0 -3px 0 var(--amber)}
+.lg-exit{background:rgba(90,209,245,.18);box-shadow:inset 0 0 0 1.5px var(--cyan)}
+
+.status{display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 14px;border-radius:var(--r-md);background:rgba(8,9,15,.55);border:1px solid var(--border);color:var(--text2);font-size:15px;transition:border-color .2s,color .2s}
+.status .fi{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--surface3);color:var(--text2);font-size:14px}
+.status[data-s="play"] .fi{background:var(--amberA);color:var(--amber)}
+.status[data-s="stuck"]{border-color:rgba(255,107,129,.4);color:#ffc2cb}
+.status[data-s="stuck"] .fi{background:rgba(255,107,129,.14);color:var(--rose)}
+.status[data-s="win"]{border-color:rgba(90,209,245,.45);color:var(--text)}
+.status[data-s="win"] .fi{background:var(--cyanA);color:var(--cyan)}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.controls #toggle{margin-left:auto}
+.short{display:none}
+@media (max-width:560px){.controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.controls #toggle{grid-column:1/-1;margin-left:0}.controls .btn{padding:0 10px}.long{display:none}.short{display:inline}}
+.kbd{font:700 11px var(--f-mono);padding:2px 6px;border-radius:5px;border:1px solid var(--border2);color:var(--text3)}
+@media (hover:none),(max-width:560px){.kbd{display:none}}
+
+/* Calendrier en frise */
+.calbox{position:relative;max-height:min(70vh,690px);overflow:auto;padding:8px 10px 14px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+@media (max-width:980px){.calbox{max-height:440px}}
+.cal{position:relative;list-style:none;margin:0;padding:0}
+.cal::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;width:2px;border-radius:2px;background:linear-gradient(180deg,var(--amber) var(--fill,0%),var(--border2) var(--fill,0%))}
+.cal li{position:relative;display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:6px;padding:6px 6px 6px 0;border-radius:12px}
+.cal li:not(.gap):hover{background:rgba(255,255,255,.025)}
+.dot{justify-self:center;width:14px;height:14px;border-radius:50%;background:var(--bg2);border:2px solid var(--border2);z-index:1}
+.cal li.done .dot{background:var(--amber);border-color:var(--amber);box-shadow:0 0 0 4px rgba(255,139,61,.15)}
+.cal li.next .dot{background:var(--bg);border-color:var(--amber);animation:ping 2s infinite}
+.cal .d{display:grid;line-height:1.25;min-width:0}
+.cal .d b{font:700 15px var(--f-body);color:var(--text2);white-space:nowrap}
+.cal .d small{font:600 12px var(--f-body);color:var(--text3)}
+.cal .d small .n{font-family:var(--f-mono);margin-right:6px}
+.cal li.done .d b,.cal li.next .d b{color:var(--text)}
+.cal li.done .d small,.cal li.next .d small{color:var(--amber2)}
+.cal li.next{background:linear-gradient(90deg,rgba(255,139,61,.10),transparent);box-shadow:inset 0 0 0 1px rgba(255,139,61,.35)}
+.cal .a{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:var(--surface);border:1px solid var(--border);font-size:18px;color:var(--text3)}
+.cal li.done .a{background:var(--amberA);border-color:rgba(255,139,61,.4);color:var(--amber2)}
+.cal .a.sol{background:var(--cyanA);border-color:rgba(90,209,245,.35);color:var(--cyan)}
+.cal .a .fi{font-size:13px}
+.cal li.gap{grid-template-columns:40px 1fr;padding:12px 0 6px}
+.cal li.gap span{display:flex;align-items:center;gap:10px;font:700 11px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.cal li.gap span::after{content:"";flex:1;height:1px;background:var(--border)}
+.cal li.gap::before{content:"";justify-self:center;width:8px;height:8px;border-radius:2px;transform:rotate(45deg);background:var(--border2);z-index:1}
+
+/* Règles */
+.rules{padding:24px 0 56px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:860px){.steps{grid-template-columns:1fr}}
+.step{position:relative;padding:22px;border-radius:var(--r-lg);background:linear-gradient(180deg,rgba(23,27,42,.8),rgba(17,20,31,.8));border:1px solid var(--border2);overflow:hidden}
+.step::before{content:attr(data-n);position:absolute;right:16px;top:6px;font:700 64px/1 var(--f-display);color:rgba(255,255,255,.045)}
+.step>.fi{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--amberA);color:var(--amber);font-size:18px;margin-bottom:14px}
+.step.cy>.fi{background:var(--cyanA);color:var(--cyan)}
+.step h3{margin:0 0 6px;font:700 18px var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.step p{margin:0;color:var(--text2);font-size:15px;text-wrap:pretty}
+.note{display:flex;gap:16px;align-items:flex-start;margin-top:14px;padding:20px 22px;border-radius:var(--r-lg);background:rgba(90,209,245,.05);border:1px solid rgba(90,209,245,.22)}
+.note>.fi{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--cyanA);color:var(--cyan);font-size:16px}
+.note p{margin:0;color:var(--text2);text-wrap:pretty}
+
+footer{border-top:1px solid rgba(255,255,255,.06);padding:26px 0 calc(26px + env(safe-area-inset-bottom,0px))}
+footer .container{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 24px;font-size:13px;color:var(--text3)}
+footer a{color:var(--text2)}
+#mesure{flex-basis:100%;margin:0;font-size:12px}
+
+/* Fenêtre du code administrateur */
+dialog.modal{width:min(420px,calc(100% - 32px));padding:0;border:1px solid var(--border2);border-radius:var(--r-lg);background:linear-gradient(180deg,var(--surface3),var(--surface));color:var(--text);box-shadow:0 40px 80px -20px rgba(0,0,0,.9)}
+dialog.modal::backdrop{background:rgba(4,5,10,.7);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
+.modal form{padding:24px;display:grid;gap:14px}
+.modal-h{display:flex;align-items:flex-start;gap:14px}
+.modal-h>.fi{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--cyanA);color:var(--cyan);font-size:18px}
+.modal h3{margin:2px 0 2px;font:700 20px var(--f-display);text-transform:uppercase}
+.modal-h p{margin:0;color:var(--text2);font-size:14px}
+.x{margin-left:auto;display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:10px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:16px}
+.x:hover{background:var(--surface2);color:var(--text)}
+.field{display:grid;gap:6px}
+.field label{font:700 12px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.field input{width:100%;height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--border2);background:rgba(8,9,15,.7);color:var(--text);font:600 16px var(--f-body)}
+.field input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 4px rgba(90,209,245,.15)}
+.err{font-size:14px;font-weight:700;color:var(--rose)}
+.err:empty{display:none}
+.modal-a{display:flex;justify-content:flex-end;gap:8px}
+
+@media (max-width:980px){.hero .container{grid-template-columns:1fr;gap:32px}.hero{padding-top:40px}}
+@media (max-width:560px){
+  .hero{padding:28px 0 20px}.hero-cta .btn{flex:1 1 auto}
+  .season{padding:18px}.count b{font-size:52px}
+  .panel-h{padding:14px}.panel-b{padding:12px}
+  .cells{gap:2px;padding:2px;border-radius:12px}
+  svg.lines{inset:2px;width:calc(100% - 4px);height:calc(100% - 4px)}
+  .step,.note{padding:18px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
-<div class="wrap">
-  <header>
-    <h1>Le Dédale des Lames</h1>
-    <p class="lede">Chaque vendredi de cours, une flèche est postée dans le salon Discord « forme-2 » de Montpellier et apparaît aussi dans le calendrier juste en dessous. Elles sont postées dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera le ⬆️ de la sortie en haut à gauche. Ici, une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
-    <div class="stats">
-      <div class="stat"><b>26</b><span>cours, donc 26 flèches</span></div>
-      <div class="stat"><b id="posted">0</b><span>déjà postées</span></div>
-      <div class="stat"><b>25</b><span>sauts minimum</span></div>
-      <div class="stat"><b>1</b><span>départ sur 11 qui mène à la sortie</span></div>
-    </div>
-  </header>
-  <div class="main">
-    <section class="board" aria-label="Dédale jouable">
-      <div class="tag">↑ Sortie : le ⬆️ en haut à gauche</div>
-      <div class="gridbox" id="gb"><div class="cells" id="cells"></div><svg class="route" id="route" viewBox="0 0 11 11" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-      <div class="tag">Départ : une des 11 cases soulignées</div>
-      <div class="status" id="status">Clique une case de la ligne du bas pour commencer.</div>
-      <div class="controls">
-        <button class="btn ghost" id="undo" type="button" disabled>Revenir d’un saut</button>
-        <button class="btn ghost" id="reset" type="button" disabled>Recommencer</button>
-        <button class="btn" id="toggle" type="button">Révéler la solution</button>
-      </div>
-      <form class="unlock" id="unlock" hidden>
-        <label for="code">Code administrateur</label>
-        <input id="code" type="password" autocomplete="off" required>
-        <button class="btn" id="ok" type="submit">Valider</button>
-        <span class="err" id="err" role="alert"></span>
-      </form>
-    </section>
-    <section>
-      <h2>Le calendrier des flèches</h2>
-      <ol class="cal" id="cal"></ol>
-    </section>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 20V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sabers" viewBox="0 0 32 32">
+    <g fill="none" stroke-linecap="round">
+      <path d="M8.2 23.8 26.5 5.5" stroke="#ff8b3d" stroke-width="2.4"/>
+      <path d="M23.8 23.8 5.5 5.5" stroke="#5ad1f5" stroke-width="2.4"/>
+      <path d="M4.2 27.8 8.6 23.4M27.8 27.8l-4.4-4.4" stroke="#c9cee0" stroke-width="3.6"/>
+      <path d="M6.4 21.2l4.4 4.4M25.6 21.2l-4.4 4.4" stroke="#7b8199" stroke-width="1.8"/>
+    </g>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="container">
+    <a class="brand" href="#">
+      <span class="logo"><svg aria-hidden="true"><use href="#i-sabers"/></svg></span>
+      <span class="brand-t"><strong>Le Dédale des Lames</strong><span>LudoSport Montpellier</span></span>
+    </a>
+    <nav class="nav" aria-label="Navigation">
+      <a href="#jeu"><i class="fi fi-br-route"></i>Plateau</a>
+      <a href="#calendrier"><i class="fi fi-br-calendar"></i>Calendrier</a>
+      <a href="#regles"><i class="fi fi-br-book-open-cover"></i>Règles</a>
+      <a class="btn btn-primary btn-sm" href="#jeu"><i class="fi fi-br-play"></i>Jouer</a>
+    </nav>
   </div>
-  <section class="rules">
-    <h2>Les règles</h2>
-    <p>Pars d’une case de la ligne du bas. Regarde sa flèche : tu peux atterrir sur <b>n’importe quelle case</b> dans cette direction, à 1, 2, 5 ou 10 cases. Recommence depuis la case d’arrivée. Le but est d’atteindre le ⬆️ en haut à gauche.</p>
-    <p>Toutes les cases de la grille sont accessibles depuis le bas, mais <b>une seule case de départ</b> permet d’atteindre la sortie. Les 10 autres envoient tourner en rond pour toujours. Le chemin le plus court fait 25 sauts, et il est unique. Mes messages ne donnent que la direction, jamais la distance : lire les flèches dans l’ordre ne suffit pas pour tracer le chemin.</p>
-    <p id="mesure" hidden>Cette page mesure les visites et les parties de façon anonyme, sans cookie (Microsoft Clarity).</p>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <div>
+        <span class="eyebrow"><i class="fi fi-br-sword"></i>LudoSport Montpellier · Forme 2</span>
+        <h1>Le Dédale <span class="l2">des Lames</span></h1>
+        <div class="saber" aria-hidden="true"></div>
+        <p class="tagline">26 vendredis, 26 flèches, une seule sortie.</p>
+        <p class="lede">Chaque vendredi de cours, une flèche est postée dans le salon Discord « forme-2 » de Montpellier et apparaît aussi dans le calendrier juste en dessous. Elles sont postées dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> de la sortie en haut à gauche. Ici, une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#jeu"><i class="fi fi-br-play"></i>Commencer à jouer</a>
+          <a class="btn btn-ghost" href="#regles"><i class="fi fi-br-book-open-cover"></i>Comment jouer</a>
+        </div>
+      </div>
+      <aside class="season" aria-label="Progression de la saison">
+        <div class="season-h"><span>Saison 2026 – 2027</span><span class="live">En cours</span></div>
+        <div class="count"><b id="posted">0</b><span>/ 26</span></div>
+        <p class="count-l">flèches déjà publiées</p>
+        <div class="segs" id="segs" aria-hidden="true"></div>
+        <div class="nextbox">
+          <span class="ico"><i class="fi fi-br-hourglass-end"></i></span>
+          <div><small>Prochaine flèche</small><strong id="nextDate">—</strong><em id="nextIn"></em></div>
+        </div>
+        <div class="facts">
+          <div class="fact"><b>26</b><span>cours, donc 26 flèches</span></div>
+          <div class="fact"><b>25</b><span>sauts minimum</span></div>
+          <div class="fact"><b>1 / 11</b><span>départ mène à la sortie</span></div>
+        </div>
+      </aside>
+    </div>
   </section>
-</div>
+
+  <section class="game" id="jeu">
+    <div class="container game-grid">
+      <div class="panel">
+        <div class="panel-h">
+          <h3><i class="fi fi-br-route"></i>Le plateau</h3>
+          <span class="chip">Sauts <b id="jumps">0</b></span>
+        </div>
+        <div class="panel-b board" aria-label="Dédale jouable">
+          <div class="gridbox" id="gb">
+            <div class="cells" id="cells"></div>
+            <svg class="lines" id="trailsvg" viewBox="0 0 11 11" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <svg class="lines" id="route" viewBox="0 0 11 11" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <div class="win" id="win" hidden>
+              <div class="win-card" role="dialog" aria-labelledby="winT">
+                <div class="win-ico"><i class="fi fi-br-trophy"></i></div>
+                <h4 id="winT">Sortie atteinte !</h4>
+                <p>Tu es sorti du dédale en <b id="winN">0</b> sauts.</p>
+                <span class="best" id="winBest" hidden><i class="fi fi-br-sparkles"></i>Le chemin le plus court</span>
+                <div class="win-actions">
+                  <button class="btn btn-primary btn-sm" id="again" type="button"><i class="fi fi-br-rotate-right"></i>Rejouer</button>
+                  <button class="btn btn-ghost btn-sm" id="seeMine" type="button"><i class="fi fi-br-route"></i>Voir mon parcours</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="legend" aria-hidden="true">
+            <span><i class="lg-here"></i>Ta position</span>
+            <span><i class="lg-can"></i>Sauts possibles</span>
+            <span><i class="lg-start"></i>Départs</span>
+            <span><i class="lg-exit"></i>Sortie</span>
+          </div>
+          <div class="status" id="status" data-s="idle" aria-live="polite"><i class="fi fi-br-map-marker"></i><span id="stText">Choisis une case de départ sur la ligne du bas.</span></div>
+          <div class="controls">
+            <button class="btn btn-ghost" id="undo" type="button" disabled title="Revenir d’un saut (touche Retour arrière)"><i class="fi fi-br-undo"></i><span class="long">Revenir d’un saut</span><span class="short">Retour</span><span class="kbd">⌫</span></button>
+            <button class="btn btn-ghost" id="reset" type="button" disabled><i class="fi fi-br-rotate-right"></i>Recommencer</button>
+            <button class="btn btn-cyan" id="toggle" type="button"><i class="fi fi-br-lock"></i><span>Révéler la solution</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="calendrier">
+        <div class="panel-h">
+          <h3><i class="fi fi-br-calendar"></i>Calendrier</h3>
+          <span class="chip"><b id="calCount">0</b> / 26</span>
+        </div>
+        <div class="calbox" id="calBox"><ol class="cal" id="cal"></ol></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rules" id="regles">
+    <div class="container">
+      <div class="sec-h">
+        <span class="kicker"><i class="fi fi-br-book-open-cover"></i>Les règles</span>
+        <h2>Comment jouer</h2>
+      </div>
+      <div class="steps">
+        <article class="step" data-n="1">
+          <i class="fi fi-br-map-marker"></i>
+          <h3>Choisis ton départ</h3>
+          <p>Pars d’une case de la ligne du bas. Regarde sa flèche.</p>
+        </article>
+        <article class="step" data-n="2">
+          <i class="fi fi-br-bolt"></i>
+          <h3>Saute</h3>
+          <p>Tu peux atterrir sur <b>n’importe quelle case</b> dans cette direction, à 1, 2, 5 ou 10 cases. Recommence depuis la case d’arrivée.</p>
+        </article>
+        <article class="step cy" data-n="3">
+          <i class="fi fi-br-flag-checkered"></i>
+          <h3>Trouve la sortie</h3>
+          <p>Le but est d’atteindre le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> en haut à gauche.</p>
+        </article>
+      </div>
+      <div class="note">
+        <i class="fi fi-br-info"></i>
+        <p>Toutes les cases de la grille sont accessibles depuis le bas, mais <b>une seule case de départ</b> permet d’atteindre la sortie. Les 10 autres envoient tourner en rond pour toujours. Le chemin le plus court fait 25 sauts, et il est unique. Mes messages ne donnent que la direction, jamais la distance : lire les flèches dans l’ordre ne suffit pas pour tracer le chemin.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <span>LudoSport Montpellier · Le Dédale des Lames</span>
+    <span>Icônes : <a href="https://www.flaticon.com/uicons" target="_blank" rel="noopener">UIcons par Flaticon</a></span>
+    <p id="mesure" hidden>Cette page mesure les visites et les parties de façon anonyme, sans cookie (Microsoft Clarity).</p>
+  </div>
+</footer>
+
+<dialog class="modal" id="dlg" aria-labelledby="dlgT">
+  <form id="unlock">
+    <div class="modal-h">
+      <i class="fi fi-br-key"></i>
+      <div><h3 id="dlgT">Accès administrateur</h3><p>Entre le code pour afficher la solution complète.</p></div>
+      <button class="x" id="cancelX" type="button" aria-label="Fermer"><i class="fi fi-br-cross-small"></i></button>
+    </div>
+    <div class="field">
+      <label for="code">Code administrateur</label>
+      <input id="code" type="password" autocomplete="off" required>
+    </div>
+    <span class="err" id="err" role="alert"></span>
+    <div class="modal-a">
+      <button class="btn btn-ghost btn-sm" id="cancel" type="button">Annuler</button>
+      <button class="btn btn-primary btn-sm" id="ok" type="submit"><i class="fi fi-br-unlock"></i>Valider</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
 // Données injectées par build.mjs : grille, dates, flèches déjà postées et solution complète chiffrée.
 const M=/*DATA*/null;
 const N=M.n;
-const AR={N:"↑",NE:"↗",E:"→",SE:"↘",S:"↓",SW:"↙",W:"←",NW:"↖"};
-const EM={N:"⬆️",NE:"↗️",E:"➡️",SE:"↘️",S:"⬇️",SW:"↙️",W:"⬅️",NW:"↖️"};
+const ROT={N:0,NE:45,E:90,SE:135,S:180,SW:225,W:270,NW:315};
+const NOM={N:"le haut",NE:"le haut à droite",E:"la droite",SE:"le bas à droite",S:"le bas",SW:"le bas à gauche",W:"la gauche",NW:"le haut à gauche"};
 const DV={N:[0,-1],NE:[1,-1],E:[1,0],SE:[1,1],S:[0,1],SW:[-1,1],W:[-1,0],NW:[-1,-1]};
+const $=id=>document.getElementById(id);
+const arrow=d=>'<svg class="ar" style="--r:'+ROT[d]+'deg" aria-hidden="true"><use href="#i-arrow"/></svg>';
 const posted=M.revealed.length;
-let path=null; // solution complète du départ à la sortie, connue seulement après le code prof
-document.getElementById("posted").textContent=posted;
-const cellsEl=document.getElementById("cells"),el={};
+let path=null; // solution complète du départ à la sortie, connue seulement après le code administrateur
+
+// Progression de la saison et compte à rebours jusqu'à la prochaine flèche (vendredi 20 h 30)
+$("posted").textContent=posted;$("calCount").textContent=posted;
+$("segs").innerHTML=M.fridays.map((f,i)=>'<span class="seg'+(i<posted?" on":i===posted?" nx":"")+'"></span>').join("");
+const fmtLong=new Intl.DateTimeFormat("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+function dans(ms){const m=Math.floor(ms/6e4),h=Math.floor(m/60),d=Math.floor(h/24);
+  if(d>0)return "dans "+d+" j "+(h%24)+" h";if(h>0)return "dans "+h+" h "+String(m%60).padStart(2,"0")+" min";return "dans "+Math.max(1,m)+" min";}
+function tick(){
+  const f=M.fridays[posted];
+  if(!f){$("nextDate").textContent="Toutes les flèches sont publiées";$("nextIn").textContent="À toi de trouver la sortie !";return;}
+  const t=new Date(f+"T20:30:00"),s=fmtLong.format(t);
+  $("nextDate").textContent=s.charAt(0).toUpperCase()+s.slice(1)+" · 20 h 30";
+  $("nextIn").textContent=t-Date.now()>0?dans(t-Date.now()):"Publication imminente…";
+}
+tick();setInterval(tick,30000);
+
+// Plateau
+const cellsEl=$("cells"),el={};
 for(let y=0;y<N;y++)for(let x=0;x<N;x++){
-  const b=document.createElement("button");b.type="button";b.className="c";b.textContent=AR[M.grid[y][x]];
-  b.setAttribute("aria-label","case "+(x+1)+", "+(y+1)+", flèche "+M.grid[y][x]);
+  const d=M.grid[y][x],b=document.createElement("button");
+  b.type="button";b.className="c";b.innerHTML=arrow(d);b.style.setProperty("--r",ROT[d]+"deg");
+  b.setAttribute("aria-label","Case colonne "+(x+1)+", ligne "+(y+1)+", flèche vers "+NOM[d]);
   if(x===0&&y===0)b.classList.add("exit"); if(y===N-1)b.classList.add("row");
   b.addEventListener("click",()=>clickCell(x,y));
   cellsEl.appendChild(b); el[x+","+y]=b;
@@ -134,8 +485,12 @@ let trail=[];
 // sans retour ni nouveau départ et très rapide, mérite un coup d’œil.
 const T={t0:0,departs:0,sauts:0,annulations:0,recommencements:0,gagne:false};
 function track(ev,tags){try{if(!window.clarity)return;for(const k in tags)clarity("set",k,String(tags[k]));clarity("event",ev);}catch{}}
-if(window.clarity){document.getElementById("mesure").hidden=false;track("visite",{fleches_publiees:posted});}
-const st=document.getElementById("status"),undo=document.getElementById("undo"),reset=document.getElementById("reset");
+if(window.clarity){$("mesure").hidden=false;track("visite",{fleches_publiees:posted});}
+const st=$("status"),stIco=st.querySelector(".fi"),stText=$("stText"),undo=$("undo"),reset=$("reset"),win=$("win");
+const ICO={idle:"fi-br-map-marker",play:"fi-br-bolt",stuck:"fi-br-cross-small",win:"fi-br-trophy"};
+function setStatus(s,txt){st.dataset.s=s;stIco.className="fi "+ICO[s];stText.textContent=txt;}
+const pt=([x,y])=>(x+.5)+","+(y+.5);
+const atExit=()=>trail.length&&trail[trail.length-1][0]===0&&trail[trail.length-1][1]===0;
 function render(){
   Object.values(el).forEach(b=>b.classList.remove("trail","here","can"));
   let can=[];
@@ -146,52 +501,68 @@ function render(){
     can=ray(hx,hy);
   }
   can.forEach(([x,y])=>el[x+","+y].classList.add("can"));
-  st.classList.remove("win");
-  if(!trail.length) st.textContent="Clique une case de la ligne du bas pour commencer.";
-  else{
-    const [hx,hy]=trail[trail.length-1];
-    if(hx===0&&hy===0){st.textContent="Sortie atteinte en "+(trail.length-1)+" sauts. Bravo !";st.classList.add("win");}
-    else st.textContent=(trail.length-1)+" saut"+(trail.length>2?"s":"")+". Choisis une case en pointillés.";
-  }
+  Object.values(el).forEach(b=>b.tabIndex=b.classList.contains("can")||b.classList.contains("here")?0:-1);
+  $("trailsvg").innerHTML=trail.length?'<polyline points="'+trail.map(pt).join(" ")+'"/><circle cx="'+(trail[0][0]+.5)+'" cy="'+(trail[0][1]+.5)+'" r=".12"/>':"";
+  const sauts=Math.max(0,trail.length-1);$("jumps").textContent=sauts;
+  if(!trail.length)setStatus("idle","Choisis une case de départ sur la ligne du bas.");
+  else if(atExit())setStatus("win","Sortie atteinte en "+sauts+" sauts. Bravo !");
+  else if(!can.length)setStatus("stuck","Impasse : aucune case dans cette direction. Reviens d’un saut.");
+  else setStatus("play",sauts?sauts+" saut"+(sauts>1?"s":"")+" · choisis une case en surbrillance.":"C’est parti ! Choisis une case en surbrillance.");
+  if(!atExit())win.hidden=true;
   undo.disabled=!trail.length;reset.disabled=!trail.length;
 }
 function clickCell(x,y){
   if(!el[x+","+y].classList.contains("can"))return;
+  const kbd=document.activeElement===el[x+","+y]&&el[x+","+y].matches(":focus-visible");
   if(!trail.length){
     T.departs++;if(!T.t0)T.t0=Date.now();
     track("depart",{case_depart:x+1,departs:T.departs});
   }else T.sauts++;
   trail.push([x,y]);render();
-  if(x===0&&y===0){
+  if(atExit()){
     const sauts=trail.length-1,sansErreur=!T.annulations&&!T.recommencements&&T.departs===1;
     const tags={victoire:"oui",sauts_victoire:sauts,sauts_total:T.sauts,annulations:T.annulations,recommencements:T.recommencements,departs:T.departs,duree_s:Math.round((Date.now()-T.t0)/1000),sans_erreur:sansErreur?"oui":"non",fleches_publiees:posted};
     track(T.gagne?"victoire_rejouee":"victoire",tags);
     if(!T.gagne&&sansErreur&&sauts===25)track("victoire_parfaite",{});
     T.gagne=true;
-  }
+    $("winN").textContent=sauts;$("winBest").hidden=sauts!==25;win.hidden=false;$("again").focus({preventScroll:true});
+  }else if(kbd){const n=document.querySelector(".c.can");if(n)n.focus({preventScroll:true});}
 }
 undo.addEventListener("click",()=>{if(trail.length)T.annulations++;trail.pop();render()});
 reset.addEventListener("click",()=>{if(trail.length)T.recommencements++;trail=[];render()});
+$("again").addEventListener("click",()=>reset.click());
+$("seeMine").addEventListener("click",()=>{win.hidden=true;undo.focus({preventScroll:true});});
+document.addEventListener("keydown",e=>{
+  if($("dlg").open||e.target.closest("input,textarea"))return;
+  if(e.key==="Backspace"||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z")){if(trail.length){e.preventDefault();undo.click();}}
+});
 render();
+
+// Calendrier en frise
 const fmt=new Intl.DateTimeFormat("fr-FR",{weekday:"short",day:"numeric",month:"short"});
-const cal=document.getElementById("cal");
+const cal=$("cal");
 const breaks={"2026-11-06":"Vacances de la Toussaint","2027-01-08":"Vacances de Noël","2027-02-26":"Vacances d’hiver","2027-04-23":"Vacances de printemps","2027-05-14":"Pont de l’Ascension (7 mai)"};
 function renderCal(){
   const known=path||M.revealed;
   cal.textContent="";
   M.fridays.forEach((f,i)=>{
-    if(breaks[f]){const g=document.createElement("li");g.className="gap";g.textContent="— "+breaks[f]+" —";cal.appendChild(g);}
-    const li=document.createElement("li");
-    if(i<posted)li.classList.add("done"); if(i===posted)li.classList.add("next");
-    const a=i<known.length?EM[M.grid[known[i][1]][known[i][0]]]:"?";
-    li.innerHTML='<span class="n">'+String(i+1).padStart(2,"0")+'</span><span class="d">'+fmt.format(new Date(f+"T12:00:00"))+'</span><span class="a'+(i<known.length?'':' unk')+'">'+a+'</span>';
+    if(breaks[f]){const g=document.createElement("li");g.className="gap";g.innerHTML="<span></span>";g.firstChild.textContent=breaks[f];cal.appendChild(g);}
+    const li=document.createElement("li"),d=i<known.length?M.grid[known[i][1]][known[i][0]]:null;
+    li.className=i<posted?"done":i===posted?"next":"todo";
+    const etat=i<posted?"Publiée":i===posted?"Prochaine · 20 h 30":"À venir";
+    li.innerHTML='<span class="dot"></span><span class="d"><b>'+fmt.format(new Date(f+"T12:00:00"))+'</b><small><span class="n">'+String(i+1).padStart(2,"0")+'</span>'+etat+'</small></span>'+
+      '<span class="a'+(d&&i>=posted?" sol":"")+'">'+(d?arrow(d):'<i class="fi fi-br-lock"></i>')+'</span>';
     cal.appendChild(li);
   });
+  const last=[...cal.querySelectorAll("li.done")].pop();
+  cal.style.setProperty("--fill",last?((last.offsetTop+last.offsetHeight/2)/cal.offsetHeight*100)+"%":"0%");
 }
 renderCal();
-// Révélation : le code prof déchiffre la solution (PBKDF2 + AES-GCM), il n'est stocké nulle part.
-const gb=document.getElementById("gb"),t=document.getElementById("toggle");
-const form=document.getElementById("unlock"),code=document.getElementById("code"),ok=document.getElementById("ok"),err=document.getElementById("err");
+const nx=cal.querySelector(".next");if(nx){const box=$("calBox");box.scrollTop=Math.max(0,nx.offsetTop-box.clientHeight/2+nx.offsetHeight/2);}
+
+// Révélation : le code administrateur déchiffre la solution (PBKDF2 + AES-GCM), il n'est stocké nulle part.
+const gb=$("gb"),t=$("toggle"),dlg=$("dlg");
+const form=$("unlock"),code=$("code"),ok=$("ok"),err=$("err");
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function decrypt(pw){
   const e=M.enc,s=crypto.subtle;
@@ -201,25 +572,30 @@ async function decrypt(pw){
 }
 function applySolution(){
   path.forEach(([x,y],i)=>{const b=el[x+","+y];b.classList.add("p");const s=document.createElement("small");s.textContent=i+1;b.appendChild(s);});
-  const pts=path.map(p=>(p[0]+.5)+","+(p[1]+.5)).concat(["0.5,0"]).join(" ");
-  document.getElementById("route").innerHTML='<polyline points="'+pts+'" fill="none" stroke="var(--accent)" stroke-width="0.07" stroke-linejoin="round" opacity="0.85"/>';
+  $("route").innerHTML='<polyline points="'+path.map(pt).concat(["0.5,0"]).join(" ")+'"/>';
   renderCal();
 }
-function setShown(on){gb.classList.toggle("show",on);t.textContent=on?"Cacher la solution":"Révéler la solution";t.classList.toggle("ghost",on);}
+function setShown(on){
+  gb.classList.toggle("show",on);
+  t.innerHTML=on?'<i class="fi fi-br-eye-crossed"></i><span>Masquer la solution</span>':'<i class="fi fi-br-eye"></i><span>Afficher la solution</span>';
+}
 t.addEventListener("click",()=>{
   if(path){setShown(!gb.classList.contains("show"));return;}
-  form.hidden=!form.hidden;err.textContent="";
-  if(!form.hidden)code.focus();
+  err.textContent="";code.value="";dlg.showModal();code.focus();
 });
+$("cancel").addEventListener("click",()=>dlg.close());
+$("cancelX").addEventListener("click",()=>dlg.close());
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});
 form.addEventListener("submit",async ev=>{
   ev.preventDefault();
   if(!window.crypto||!crypto.subtle){err.textContent="Déchiffrement impossible ici : ouvre la page en https (GitHub Pages).";return;}
-  ok.disabled=true;err.textContent="Vérification…";
+  ok.disabled=true;err.textContent="";
   try{path=await decrypt(code.value);}catch{path=null;}
   ok.disabled=false;
   if(!path){err.textContent="Code incorrect.";code.select();track("code_prof_faux",{});return;}
-  code.value="";err.textContent="";form.hidden=true;
+  code.value="";dlg.close();
   applySolution();setShown(true);track("code_prof_ok",{prof:"oui"});
 });
 </script>
-</body></html>
+</body>
+</html>
