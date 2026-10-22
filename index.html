@@ -258,6 +258,10 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
 .field label{font:700 12px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
 .field input{width:100%;height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--border2);background:rgba(8,9,15,.7);color:var(--text);font:600 16px var(--f-body)}
 .field input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 4px rgba(90,209,245,.15)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:30;transform:translateX(-50%);display:flex;align-items:center;gap:12px;width:max-content;max-width:calc(100% - 32px);padding:10px 10px 10px 14px;border-radius:16px;background:linear-gradient(180deg,var(--surface3),var(--surface));border:1px solid rgba(255,139,61,.45);box-shadow:0 20px 50px -12px rgba(0,0,0,.8),0 0 30px -10px var(--amberGlow);animation:rise .4s cubic-bezier(.2,1.2,.4,1)}
+@keyframes rise{from{transform:translate(-50%,20px);opacity:0}}
+.toast>.fi{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--amberA);color:var(--amber);font-size:15px}
+.toast span{font-weight:700;font-size:14px}
 .err{font-size:14px;font-weight:700;color:var(--rose)}
 .err:empty{display:none}
 .modal-a{display:flex;justify-content:flex-end;gap:8px}
@@ -423,6 +427,11 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
   </div>
 </footer>
 
+<div class="toast" id="toast" role="status" hidden>
+  <i class="fi fi-br-sparkles"></i><span>Une nouvelle flèche vient d’être publiée !</span>
+  <button class="btn btn-primary btn-sm" id="reload" type="button"><i class="fi fi-br-rotate-right"></i>Actualiser</button>
+</div>
+
 <dialog class="modal" id="dlg" aria-labelledby="dlgT">
   <form id="unlock">
     <div class="modal-h">
@@ -468,6 +477,18 @@ function tick(){
   $("nextIn").textContent=t-Date.now()>0?dans(t-Date.now()):"Publication imminente…";
 }
 tick();setInterval(tick,30000);
+// Page restée ouverte après 20 h 30 : on vérifie toutes les 2 minutes si la nouvelle flèche est en ligne.
+async function checkUpdate(){
+  const f=M.fridays[posted];
+  if(!f||Date.now()<new Date(f+"T20:30:00")||!$("toast").hidden)return;
+  try{
+    const h=await (await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"})).text();
+    const m=h.match(/const M=(\{.*\});/);
+    if(m&&JSON.parse(m[1]).revealed.length>posted)$("toast").hidden=false;
+  }catch{}
+}
+setInterval(checkUpdate,120000);
+$("reload").addEventListener("click",()=>location.reload());
 
 // Plateau
 const cellsEl=$("cells"),el={};

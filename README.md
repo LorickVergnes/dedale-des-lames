@@ -24,5 +24,6 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 
 - Le dossier `prive/` (ignoré par git) garde la version complète `dedale-des-lames-complet.html`, utilisable hors ligne.
 - Pour tester en local : `node build.mjs` (lit `prive/solution.json` et `prive/mot-de-passe.txt`), puis ouvrir `dist/index.html`. `BUILD_DATE="2027-01-15 20:30"` simule une date et une heure.
-- GitHub lance parfois les tâches programmées avec quelques minutes de retard : la flèche peut apparaître un peu après 20 h 30, jamais avant.
+- GitHub retarde parfois les tâches programmées de plusieurs heures (ou en saute). L’Action est donc relancée toutes les 15 minutes le vendredi soir, et une page restée ouverte affiche « Une nouvelle flèche vient d’être publiée » dès qu’elle est en ligne. La flèche n’apparaît jamais avant 20 h 30.
+- En local, `dist/index.html` est figé au moment du `node build.mjs` : relancer la commande pour voir les nouvelles flèches.
 - Sur un dépôt public, GitHub désactive les tâches programmées après 60 jours sans commit. GitHub prévient par e-mail ; il suffit de les réactiver dans l'onglet Actions (ou de faire un petit commit pendant les vacances).

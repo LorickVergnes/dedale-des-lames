@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
   schedule:
-    # Chaque vendredi à 20 h 30 à Paris. Le cron est en UTC : 18 h 30 UTC en heure d'été,
-    # 19 h 30 UTC en heure d'hiver. build.mjs ne publie la flèche qu'à partir de 20 h 30 à Paris,
-    # donc le passage qui tombe à 19 h 30 en hiver ne publie rien de nouveau.
-    - cron: "30 18 * * 5"
-    - cron: "30 19 * * 5"
+    # La flèche sort le vendredi à 20 h 30 à Paris (18 h 30 UTC en été, 19 h 30 UTC en hiver).
+    # GitHub retarde souvent les tâches programmées (parfois de plusieurs heures) et peut en sauter :
+    # on relance donc toutes les 15 minutes de 18 h 04 à 22 h 49 UTC, sur des minutes peu chargées.
+    # build.mjs ne publie la flèche qu'à partir de 20 h 30 à Paris : les passages trop tôt ne changent rien.
+    - cron: "4,19,34,49 18-22 * * 5"
   workflow_dispatch:
 
 permissions:
