@@ -96,6 +96,7 @@ h1 .l2{display:block;background:linear-gradient(92deg,var(--amber2),var(--amber)
 @keyframes ignite{from{transform:scaleX(0);opacity:.2}to{transform:scaleX(1);opacity:1}}
 .tagline{margin:0 0 10px;font:700 clamp(18px,2.2vw,22px)/1.35 var(--f-display);color:var(--text)}
 .lede{margin:0;max-width:60ch;color:var(--text2);text-wrap:pretty}
+.lede+.lede{margin-top:12px}
 .inline-ar{display:inline-grid;place-items:center;vertical-align:-4px;width:20px;height:20px;border-radius:6px;background:var(--cyanA);color:var(--cyan);font-size:13px}
 .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
 
@@ -314,7 +315,8 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
         <h1>Le Dédale <span class="l2">des Lames</span></h1>
         <div class="saber" aria-hidden="true"></div>
         <p class="tagline">26 vendredis, 26 flèches, une seule sortie.</p>
-        <p class="lede">Chaque vendredi de cours, une flèche est postée dans le salon Discord « forme-2 » de Montpellier et apparaît aussi dans le calendrier juste en dessous. Elles sont postées dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> de la sortie en haut à gauche. Ici, une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
+        <p class="lede">Le Dédale des Lames est né de l’engouement pour les messages fléchés des cours de F2 à Montpellier. Chaque vendredi de cours, une nouvelle flèche apparaît <b>ici, sur le site, toutes les semaines sans exception</b>, dans le calendrier juste en dessous. Sur le salon Discord «&nbsp;F2-Montpellier&nbsp;», le message fléché qui annonce la prochaine aide n’est posté que les vendredis où Lowgrick (Lorick) est présent en cours. Néanmoins, ces jours-là, l’aide y sera présente quelques heures en avance&nbsp;: soyez à l’affût&nbsp;!</p>
+        <p class="lede">Les flèches sortent dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> de la sortie en haut à gauche. Une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#jeu"><i class="fi fi-br-play"></i>Commencer à jouer</a>
           <a class="btn btn-ghost" href="#regles"><i class="fi fi-br-book-open-cover"></i>Comment jouer</a>
@@ -373,7 +375,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
           <div class="controls">
             <button class="btn btn-ghost" id="undo" type="button" disabled title="Revenir d’un saut (touche Retour arrière)"><i class="fi fi-br-undo"></i><span class="long">Revenir d’un saut</span><span class="short">Retour</span><span class="kbd">⌫</span></button>
             <button class="btn btn-ghost" id="reset" type="button" disabled><i class="fi fi-br-rotate-right"></i>Recommencer</button>
-            <button class="btn btn-cyan" id="toggle" type="button"><i class="fi fi-br-lock"></i><span>Révéler la solution</span></button>
+            <button class="btn btn-cyan" id="toggle" type="button" hidden><i class="fi fi-br-lock"></i><span>Révéler la solution</span></button>
           </div>
         </div>
       </div>
@@ -583,6 +585,9 @@ const nx=cal.querySelector(".next");if(nx){const box=$("calBox");box.scrollTop=M
 
 // Révélation : le code administrateur déchiffre la solution (PBKDF2 + AES-GCM), il n'est stocké nulle part.
 const gb=$("gb"),t=$("toggle"),dlg=$("dlg");
+// Le bouton n'apparaît qu'avec l'adresse secrète …/#prof ; il reste ensuite affiché jusqu'au rechargement.
+const prof=()=>{if(location.hash==="#prof")t.hidden=false;};
+prof();addEventListener("hashchange",prof);
 const form=$("unlock"),code=$("code"),ok=$("ok"),err=$("err");
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function decrypt(pw){

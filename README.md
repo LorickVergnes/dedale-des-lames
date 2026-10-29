@@ -1,7 +1,7 @@
 # Le Dédale des Lames
 
 Chaque vendredi à 20 h 30 (heure de Paris), une GitHub Action reconstruit la page et publie la flèche du jour.
-La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et la page n'en contient qu'une version chiffrée que seul le code prof permet d'ouvrir (bouton « Révéler la solution »).
+La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et la page n'en contient qu'une version chiffrée que seul le code prof permet d'ouvrir. Le bouton « Révéler la solution » est caché aux joueurs : il n'apparaît qu'en ouvrant l'adresse du site suivie de `#prof` (à garder en favori).
 
 ## Mise en place (une seule fois)
 
