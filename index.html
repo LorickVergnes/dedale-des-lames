@@ -147,7 +147,10 @@ section{scroll-margin-top:84px}
 .gridbox{position:relative;width:100%;max-width:640px;aspect-ratio:1;margin:0 auto}
 .cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);gap:3px;padding:3px;border-radius:16px;background:rgba(5,6,11,.75);border:1px solid var(--border2);box-shadow:inset 0 2px 12px rgba(0,0,0,.5)}
 .c{position:relative;display:grid;place-items:center;min-width:0;padding:0;border:0;border-radius:clamp(4px,1vw,8px);background:var(--surface);color:#7c829f;font-size:clamp(13px,3.1vw,24px);cursor:default;transition:background .16s,color .16s,box-shadow .16s,transform .16s;-webkit-tap-highlight-color:transparent}
-.c .ar{width:.95em;height:.95em;transition:transform .16s}
+.c .ar{width:.95em;height:.95em;transition:transform .16s,opacity .35s}
+/* Brouillard : case pas encore découverte (tout s'affiche quand le prof révèle la solution) */
+.gridbox:not(.show) .c.fog{background:rgba(255,255,255,.015)}
+.gridbox:not(.show) .c.fog .ar{opacity:0}
 .c small{position:absolute;top:2px;left:3px;font:700 clamp(7px,1.3vw,10px)/1 var(--f-mono);color:var(--cyan);opacity:0;transition:opacity .2s}
 .c.row::after{content:"";position:absolute;left:22%;right:22%;bottom:3px;height:3px;border-radius:3px;background:var(--amber);opacity:.55}
 .c.exit{color:var(--cyan);background:linear-gradient(180deg,rgba(90,209,245,.18),rgba(90,209,245,.06));box-shadow:inset 0 0 0 1.5px rgba(90,209,245,.7),0 0 18px -4px var(--cyanGlow)}
@@ -184,6 +187,7 @@ svg.lines{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 
 .lg-can{background:rgba(255,139,61,.32);box-shadow:inset 0 0 0 2px var(--amber2)}
 .lg-start{background:var(--surface3);box-shadow:inset 0 -3px 0 var(--amber)}
 .lg-exit{background:rgba(90,209,245,.18);box-shadow:inset 0 0 0 1.5px var(--cyan)}
+.lg-fog{background:rgba(255,255,255,.015);box-shadow:inset 0 0 0 1px var(--border2)}
 
 .status{display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 14px;border-radius:var(--r-md);background:rgba(8,9,15,.55);border:1px solid var(--border);color:var(--text2);font-size:15px;transition:border-color .2s,color .2s}
 .status .fi{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--surface3);color:var(--text2);font-size:14px}
@@ -370,6 +374,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
             <span><i class="lg-can"></i>Sauts possibles</span>
             <span><i class="lg-start"></i>Départs</span>
             <span><i class="lg-exit"></i>Sortie</span>
+            <span><i class="lg-fog"></i>Pas encore découverte</span>
           </div>
           <div class="status" id="status" data-s="idle" aria-live="polite"><i class="fi fi-br-map-marker"></i><span id="stText">Choisis une case de départ sur la ligne du bas.</span></div>
           <div class="controls">
@@ -405,7 +410,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
         <article class="step" data-n="2">
           <i class="fi fi-br-bolt"></i>
           <h3>Saute</h3>
-          <p>Tu peux atterrir sur <b>n’importe quelle case</b> dans cette direction, à 1, 2, 5 ou 10 cases. Recommence depuis la case d’arrivée.</p>
+          <p>Tu peux atterrir sur <b>n’importe quelle case</b> dans cette direction, à 1, 2, 5 ou 10 cases. Recommence depuis la case d’arrivée. Le dédale est plongé dans le noir : seules les cases que tu peux atteindre et celles que tu as traversées s’éclairent.</p>
         </article>
         <article class="step cy" data-n="3">
           <i class="fi fi-br-flag-checkered"></i>
@@ -497,7 +502,7 @@ const cellsEl=$("cells"),el={};
 for(let y=0;y<N;y++)for(let x=0;x<N;x++){
   const d=M.grid[y][x],b=document.createElement("button");
   b.type="button";b.className="c";b.innerHTML=arrow(d);b.style.setProperty("--r",ROT[d]+"deg");
-  b.setAttribute("aria-label","Case colonne "+(x+1)+", ligne "+(y+1)+", flèche vers "+NOM[d]);
+  b.dataset.l="Case colonne "+(x+1)+", ligne "+(y+1);b.dataset.d=", flèche vers "+NOM[d];
   if(x===0&&y===0)b.classList.add("exit"); if(y===N-1)b.classList.add("row");
   b.addEventListener("click",()=>clickCell(x,y));
   cellsEl.appendChild(b); el[x+","+y]=b;
@@ -524,6 +529,15 @@ function render(){
     can=ray(hx,hy);
   }
   can.forEach(([x,y])=>el[x+","+y].classList.add("can"));
+  // Brouillard : seules la ligne de départ, la sortie, les cases traversées et les sauts possibles sont éclairés.
+  const lit=new Set(["0,0"]);
+  for(let x=0;x<N;x++)lit.add(x+","+(N-1));
+  trail.forEach(([x,y],i)=>{
+    lit.add(x+","+y);const nx=trail[i+1];if(!nx)return;
+    for(const[a,b]of ray(x,y)){if(a===nx[0]&&b===nx[1])break;lit.add(a+","+b);}
+  });
+  can.forEach(([x,y])=>lit.add(x+","+y));
+  for(const k in el){const b=el[k],on=lit.has(k);b.classList.toggle("fog",!on);b.setAttribute("aria-label",b.dataset.l+(on?b.dataset.d:", pas encore découverte"));}
   Object.values(el).forEach(b=>b.tabIndex=b.classList.contains("can")||b.classList.contains("here")?0:-1);
   $("trailsvg").innerHTML=trail.length?'<polyline points="'+trail.map(pt).join(" ")+'"/><circle cx="'+(trail[0][0]+.5)+'" cy="'+(trail[0][1]+.5)+'" r=".12"/>':"";
   const sauts=Math.max(0,trail.length-1);$("jumps").textContent=sauts;
