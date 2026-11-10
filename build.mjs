@@ -18,15 +18,16 @@ if (!solutionTxt) fail("solution absente (secret SOLUTION_JSON ou prive/solution
 if (!password) fail("code prof absent (secret REVEAL_PASSWORD ou prive/mot-de-passe.txt).");
 if (password.length < 12) console.warn("Attention : code de moins de 12 caractères, plus facile à deviner.");
 
-// post[0] est la sortie, post[25] la case de départ sur la ligne du bas.
-let post;
-try { post = JSON.parse(solutionTxt); } catch { fail("SOLUTION_JSON n'est pas du JSON valide."); }
+// La solution liste les cases du chemin dans l’ordre des vendredis : la case de départ (ligne du bas) d’abord.
+// La dernière case saute vers la sortie [0,0], qui ne fait pas partie de la liste.
+let path;
+try { path = JSON.parse(solutionTxt); } catch { fail("SOLUTION_JSON n'est pas du JSON valide."); }
 const DV = { N: [0, -1], NE: [1, -1], E: [1, 0], SE: [1, 1], S: [0, 1], SW: [-1, 1], W: [-1, 0], NW: [-1, -1] };
-if (!Array.isArray(post) || post.length !== fridays.length) fail(`il faut ${fridays.length} cases dans la solution.`);
-if (post[0][0] !== 0 || post[0][1] !== 0) fail("la première case doit être la sortie [0,0].");
-if (post.at(-1)[1] !== n - 1) fail("la dernière case doit être sur la ligne du bas.");
-for (let i = post.length - 1; i > 0; i--) {
-  const [fx, fy] = post[i], [tx, ty] = post[i - 1], [dx, dy] = DV[grid[fy][fx]];
+if (!Array.isArray(path) || path.length !== fridays.length) fail(`il faut ${fridays.length} cases dans la solution (une par vendredi).`);
+if (path[0][1] !== n - 1) fail("la première case doit être sur la ligne du bas.");
+const steps = [...path, [0, 0]];
+for (let i = 0; i < path.length; i++) {
+  const [fx, fy] = steps[i], [tx, ty] = steps[i + 1], [dx, dy] = DV[grid[fy][fx]];
   const k = dx ? (tx - fx) / dx : (ty - fy) / dy;
   if (!(k >= 1 && Number.isInteger(k) && fx + k * dx === tx && fy + k * dy === ty))
     fail(`saut impossible de [${fx},${fy}] vers [${tx},${ty}].`);
@@ -43,7 +44,6 @@ const parisNow = () => {
 const bd = process.env.BUILD_DATE;
 const today = bd ? (bd.length === 10 ? bd + " 23:59" : bd) : parisNow();
 const posted = fridays.filter((f) => `${f} ${RELEASE}` <= today).length;
-const path = post.slice().reverse(); // départ → sortie, dans l’ordre des vendredis
 
 const iter = 600000, salt = randomBytes(16), iv = randomBytes(12);
 const key = pbkdf2Sync(password, salt, iter, 32, "sha256");

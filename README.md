@@ -6,7 +6,7 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 ## Mise en place (une seule fois)
 
 1. **Settings → Secrets and variables → Actions → New repository secret**, créer :
-   - `SOLUTION_JSON` : le contenu de `prive/solution.json` (le chemin, de la sortie vers le départ) ;
+   - `SOLUTION_JSON` : le contenu de `prive/solution.json` (les 23 cases du chemin dans l’ordre des vendredis, de la case de départ à celle qui saute vers la sortie) ;
    - `REVEAL_PASSWORD` : le code prof (au moins 12 caractères, idéalement 4 ou 5 mots au hasard).
 2. **Settings → Pages → Build and deployment → Source : GitHub Actions.**
 3. **Actions → Publier le Dédale des Lames → Run workflow** pour la première publication.
@@ -17,7 +17,7 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 2. Dans Clarity, **Settings → Setup → Cookies : désactivé**, et **Masking : Strict**.
 3. Sur GitHub, **Settings → Secrets and variables → Actions → onglet Variables → New repository variable** : `CLARITY_ID` = le Project ID. Puis relancer l'Action.
 
-Événements envoyés : `visite`, `depart`, `victoire`, `victoire_parfaite` (25 sauts, aucun retour, aucun nouveau départ), `victoire_rejouee`, `code_prof_faux`, `code_prof_ok`.
+Événements envoyés : `visite`, `depart`, `victoire`, `victoire_parfaite` (23 sauts, aucun retour, aucun nouveau départ), `victoire_rejouee`, `code_prof_faux`, `code_prof_ok`.
 Étiquettes : `case_depart`, `departs`, `sauts_victoire`, `sauts_total`, `annulations`, `recommencements`, `duree_s`, `sans_erreur`, `fleches_publiees`, `prof`.
 
 ## Bon à savoir

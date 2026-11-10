@@ -110,7 +110,7 @@ h1 .l2{display:block;background:linear-gradient(92deg,var(--amber2),var(--amber)
 .count b{font:700 64px/1 var(--f-display);color:var(--text);font-variant-numeric:tabular-nums}
 .count span{font-size:26px;font-weight:600;color:var(--text3)}
 .count-l{margin:0;color:var(--text2);font-size:14px}
-.segs{display:grid;grid-template-columns:repeat(26,1fr);gap:3px;margin:18px 0 20px}
+.segs{display:grid;grid-template-columns:repeat(var(--n,23),1fr);gap:3px;margin:18px 0 20px}
 .seg{height:10px;border-radius:3px;background:var(--surface3)}
 .seg.on{background:linear-gradient(180deg,var(--amber2),var(--amber));box-shadow:0 0 8px rgba(255,139,61,.45)}
 .seg.nx{background:transparent;box-shadow:inset 0 0 0 1.5px var(--amber);animation:blink 1.6s ease-in-out infinite}
@@ -318,9 +318,9 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
         <span class="eyebrow"><i class="fi fi-br-sword"></i>LudoSport Montpellier · Forme 2</span>
         <h1>Le Dédale <span class="l2">des Lames</span></h1>
         <div class="saber" aria-hidden="true"></div>
-        <p class="tagline">26 vendredis, 26 flèches, une seule sortie.</p>
+        <p class="tagline">23 vendredis, 23 flèches, une seule sortie.</p>
         <p class="lede">Le Dédale des Lames est né de l’engouement pour les messages fléchés des cours de F2 à Montpellier. Chaque vendredi de cours, une nouvelle flèche apparaît <b>ici, sur le site, toutes les semaines sans exception</b>, dans le calendrier juste en dessous. Sur le salon Discord «&nbsp;F2-Montpellier&nbsp;», le message fléché qui annonce la prochaine aide n’est posté que les vendredis où Lowgrick (Lorick) est présent en cours. Néanmoins, ces jours-là, l’aide y sera présente quelques heures en avance&nbsp;: soyez à l’affût&nbsp;!</p>
-        <p class="lede">Les flèches sortent dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> de la sortie en haut à gauche. Une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
+        <p class="lede">Les flèches sortent dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera celle de la case d’où l’on bondit vers le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> de la sortie en haut à gauche. Une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#jeu"><i class="fi fi-br-play"></i>Commencer à jouer</a>
           <a class="btn btn-ghost" href="#regles"><i class="fi fi-br-book-open-cover"></i>Comment jouer</a>
@@ -328,7 +328,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
       </div>
       <aside class="season" aria-label="Progression de la saison">
         <div class="season-h"><span>Saison 2026 – 2027</span><span class="live">En cours</span></div>
-        <div class="count"><b id="posted">0</b><span>/ 26</span></div>
+        <div class="count"><b id="posted">0</b><span>/ 23</span></div>
         <p class="count-l">flèches déjà publiées</p>
         <div class="segs" id="segs" aria-hidden="true"></div>
         <div class="nextbox">
@@ -336,8 +336,8 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
           <div><small>Prochaine flèche</small><strong id="nextDate">—</strong><em id="nextIn"></em></div>
         </div>
         <div class="facts">
-          <div class="fact"><b>26</b><span>cours, donc 26 flèches</span></div>
-          <div class="fact"><b>25</b><span>sauts, ni plus ni moins</span></div>
+          <div class="fact"><b>23</b><span>cours, donc 23 flèches</span></div>
+          <div class="fact"><b>23</b><span>sauts, ni plus ni moins</span></div>
           <div class="fact"><b>1 / 11</b><span>départ mène à la sortie</span></div>
         </div>
       </aside>
@@ -388,7 +388,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
       <div class="panel" id="calendrier">
         <div class="panel-h">
           <h3><i class="fi fi-br-calendar"></i>Calendrier</h3>
-          <span class="chip"><b id="calCount">0</b> / 26</span>
+          <span class="chip"><b id="calCount">0</b> / 23</span>
         </div>
         <div class="calbox" id="calBox"><ol class="cal" id="cal"></ol></div>
       </div>
@@ -420,7 +420,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
       </div>
       <div class="note">
         <i class="fi fi-br-info"></i>
-        <p>Toutes les cases de la grille sont accessibles depuis le bas, mais <b>une seule case de départ</b> permet d’atteindre la sortie. Les 10 autres envoient tourner en rond pour toujours. Il n’existe qu’un seul chemin vers la sortie : 25 sauts exactement, sans détour ni boucle possible. Mes messages ne donnent que la direction, jamais la distance : lire les flèches dans l’ordre ne suffit pas pour tracer le chemin.</p>
+        <p>Toutes les cases de la grille sont accessibles depuis le bas, mais <b>une seule case de départ</b> permet d’atteindre la sortie. Les 10 autres n’y mènent jamais : on y tourne en rond pour toujours, ou l’on s’y retrouve bloqué. Il n’existe qu’un seul chemin vers la sortie : 23 sauts exactement, sans raccourci ni détour possible. Mes messages ne donnent que la direction, jamais la distance : lire les flèches dans l’ordre ne suffit pas pour tracer le chemin.</p>
       </div>
     </div>
   </section>
@@ -468,11 +468,12 @@ const DV={N:[0,-1],NE:[1,-1],E:[1,0],SE:[1,1],S:[0,1],SW:[-1,1],W:[-1,0],NW:[-1,
 const $=id=>document.getElementById(id);
 const arrow=d=>'<svg class="ar" style="--r:'+ROT[d]+'deg" aria-hidden="true"><use href="#i-arrow"/></svg>';
 const posted=M.revealed.length;
+const BEST=M.fridays.length; // une flèche par vendredi, un saut par flèche : la sortie est au bout de 23 sauts
 let path=null; // solution complète du départ à la sortie, connue seulement après le code administrateur
 
 // Progression de la saison et compte à rebours jusqu'à la prochaine flèche (vendredi 20 h 30)
 $("posted").textContent=posted;$("calCount").textContent=posted;
-$("segs").innerHTML=M.fridays.map((f,i)=>'<span class="seg'+(i<posted?" on":i===posted?" nx":"")+'"></span>').join("");
+$("segs").style.setProperty("--n",M.fridays.length);$("segs").innerHTML=M.fridays.map((f,i)=>'<span class="seg'+(i<posted?" on":i===posted?" nx":"")+'"></span>').join("");
 const fmtLong=new Intl.DateTimeFormat("fr-FR",{weekday:"long",day:"numeric",month:"long"});
 function dans(ms){const m=Math.floor(ms/6e4),h=Math.floor(m/60),d=Math.floor(h/24);
   if(d>0)return "dans "+d+" j "+(h%24)+" h";if(h>0)return "dans "+h+" h "+String(m%60).padStart(2,"0")+" min";return "dans "+Math.max(1,m)+" min";}
@@ -509,7 +510,7 @@ for(let y=0;y<N;y++)for(let x=0;x<N;x++){
 }
 function ray(x,y){if(x===0&&y===0)return[];const[dx,dy]=DV[M.grid[y][x]];const o=[];let a=x+dx,b=y+dy;while(a>=0&&a<N&&b>=0&&b<N){o.push([a,b]);a+=dx;b+=dy}return o}
 let trail=[];
-// Suivi des parties dans Microsoft Clarity (présent seulement en ligne) : une victoire en 25 sauts,
+// Suivi des parties dans Microsoft Clarity (présent seulement en ligne) : une victoire en 23 sauts (BEST),
 // sans retour ni nouveau départ et très rapide, mérite un coup d’œil.
 const T={t0:0,departs:0,sauts:0,annulations:0,recommencements:0,gagne:false};
 function track(ev,tags){try{if(!window.clarity)return;for(const k in tags)clarity("set",k,String(tags[k]));clarity("event",ev);}catch{}}
@@ -560,9 +561,9 @@ function clickCell(x,y){
     const sauts=trail.length-1,sansErreur=!T.annulations&&!T.recommencements&&T.departs===1;
     const tags={victoire:"oui",sauts_victoire:sauts,sauts_total:T.sauts,annulations:T.annulations,recommencements:T.recommencements,departs:T.departs,duree_s:Math.round((Date.now()-T.t0)/1000),sans_erreur:sansErreur?"oui":"non",fleches_publiees:posted};
     track(T.gagne?"victoire_rejouee":"victoire",tags);
-    if(!T.gagne&&sansErreur&&sauts===25)track("victoire_parfaite",{});
+    if(!T.gagne&&sansErreur&&sauts===BEST)track("victoire_parfaite",{});
     T.gagne=true;
-    $("winN").textContent=sauts;$("winBest").hidden=sauts!==25;win.hidden=false;$("again").focus({preventScroll:true});
+    $("winN").textContent=sauts;$("winBest").hidden=sauts!==BEST;win.hidden=false;$("again").focus({preventScroll:true});
   }else if(kbd){const n=document.querySelector(".c.can");if(n)n.focus({preventScroll:true});}
 }
 undo.addEventListener("click",()=>{if(trail.length)T.annulations++;trail.pop();render()});
@@ -578,7 +579,7 @@ render();
 // Calendrier en frise
 const fmt=new Intl.DateTimeFormat("fr-FR",{weekday:"short",day:"numeric",month:"short"});
 const cal=$("cal");
-const breaks={"2026-11-06":"Vacances de la Toussaint","2027-01-08":"Vacances de Noël","2027-02-26":"Vacances d’hiver","2027-04-23":"Vacances de printemps","2027-05-14":"Pont de l’Ascension (7 mai)"};
+const breaks={"2027-01-08":"Vacances de Noël","2027-02-26":"Vacances d’hiver","2027-04-23":"Vacances de printemps","2027-05-14":"Pont de l’Ascension (7 mai)"};
 function renderCal(){
   const known=path||M.revealed;
   cal.textContent="";
@@ -612,7 +613,7 @@ async function decrypt(pw){
 }
 function applySolution(){
   path.forEach(([x,y],i)=>{const b=el[x+","+y];b.classList.add("p");const s=document.createElement("small");s.textContent=i+1;b.appendChild(s);});
-  $("route").innerHTML='<polyline points="'+path.map(pt).concat(["0.5,0"]).join(" ")+'"/>';
+  $("route").innerHTML='<polyline points="'+path.map(pt).concat(["0.5,0.5","0.5,0"]).join(" ")+'"/>';
   renderCal();
 }
 function setShown(on){
