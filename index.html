@@ -141,13 +141,16 @@ section{scroll-margin-top:84px}
 .panel-h h3 .fi{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--amberA);color:var(--amber);font-size:14px}
 .chip{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--border2);font:700 13px var(--f-mono);color:var(--text2);white-space:nowrap}
 .chip b{color:var(--amber2);font-weight:700}
+.chips{display:flex;justify-content:flex-end;gap:6px}
+@media (max-width:560px){.panel-h h3{white-space:nowrap}.chips .chip{padding:4px 8px;gap:5px;font-size:12px}}
+.chip .ar{color:var(--cyan);font-size:14px;transition:transform .5s cubic-bezier(.3,1.3,.5,1)}
 .panel-b{padding:18px}
 .board{display:grid;gap:14px}
 
 .gridbox{position:relative;width:100%;max-width:640px;aspect-ratio:1;margin:0 auto}
 .cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);gap:3px;padding:3px;border-radius:16px;background:rgba(5,6,11,.75);border:1px solid var(--border2);box-shadow:inset 0 2px 12px rgba(0,0,0,.5)}
 .c{position:relative;display:grid;place-items:center;min-width:0;padding:0;border:0;border-radius:clamp(4px,1vw,8px);background:var(--surface);color:#7c829f;font-size:clamp(13px,3.1vw,24px);cursor:default;transition:background .16s,color .16s,box-shadow .16s,transform .16s;-webkit-tap-highlight-color:transparent}
-.c .ar{width:.95em;height:.95em;transition:transform .16s,opacity .35s}
+.c .ar{width:.95em;height:.95em;transition:transform .5s cubic-bezier(.3,1.3,.5,1),opacity .35s}
 /* Brouillard : case pas encore découverte (tout s'affiche quand le prof révèle la solution) */
 .gridbox:not(.show) .c.fog{background:rgba(255,255,255,.015)}
 .gridbox:not(.show) .c.fog .ar{opacity:0}
@@ -231,8 +234,9 @@ svg.lines{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 
 
 /* Règles */
 .rules{padding:24px 0 56px}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media (max-width:860px){.steps{grid-template-columns:1fr}}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:1060px){.steps{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.steps{grid-template-columns:1fr}}
 .step{position:relative;padding:22px;border-radius:var(--r-lg);background:linear-gradient(180deg,rgba(23,27,42,.8),rgba(17,20,31,.8));border:1px solid var(--border2);overflow:hidden}
 .step::before{content:attr(data-n);position:absolute;right:16px;top:6px;font:700 64px/1 var(--f-display);color:rgba(255,255,255,.045)}
 .step>.fi{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--amberA);color:var(--amber);font-size:18px;margin-bottom:14px}
@@ -320,7 +324,8 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
         <div class="saber" aria-hidden="true"></div>
         <p class="tagline">23 vendredis, 23 flèches, une seule sortie.</p>
         <p class="lede">Le Dédale des Lames est né de l’engouement pour les messages fléchés des cours de F2 à Montpellier. Chaque vendredi de cours, une nouvelle flèche apparaît <b>ici, sur le site, toutes les semaines sans exception</b>, dans le calendrier juste en dessous. Sur le salon Discord «&nbsp;F2-Montpellier&nbsp;», le message fléché qui annonce la prochaine aide n’est posté que les vendredis où Lowgrick (Lorick) est présent en cours. Néanmoins, ces jours-là, l’aide y sera présente quelques heures en avance&nbsp;: soyez à l’affût&nbsp;!</p>
-        <p class="lede">Les flèches sortent dans l’ordre du chemin : la première part de la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) sera celle de la case d’où l’on bondit vers le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> de la sortie en haut à gauche. Une flèche ne dit que la direction : <b>on peut sauter d’autant de cases qu’on veut</b> dans ce sens.</p>
+        <p class="lede">Attention, <b>le dédale tourne</b> : après chaque saut, toutes les flèches pivotent d’un huitième de tour par case parcourue. On peut sauter d’autant de cases qu’on veut, mais la longueur du saut décide de l’orientation du dédale pour la suite.</p>
+        <p class="lede">Les flèches sortent dans l’ordre du chemin : la première est celle du saut depuis la case de départ, cachée sur la ligne du bas, la dernière (le 4 juin) celle du bond vers le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> de la sortie en haut à gauche. Chaque flèche publiée donne la direction réelle du saut, une fois le dédale tourné : <b>jamais la case, jamais la distance</b>.</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#jeu"><i class="fi fi-br-play"></i>Commencer à jouer</a>
           <a class="btn btn-ghost" href="#regles"><i class="fi fi-br-book-open-cover"></i>Comment jouer</a>
@@ -349,7 +354,10 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
       <div class="panel">
         <div class="panel-h">
           <h3><i class="fi fi-br-route"></i>Le plateau</h3>
-          <span class="chip">Sauts <b id="jumps">0</b></span>
+          <span class="chips">
+            <span class="chip" title="Rotation actuelle des flèches"><svg class="ar" id="rotar" aria-hidden="true"><use href="#i-arrow"/></svg><b id="rotv">+0°</b></span>
+            <span class="chip">Sauts <b id="jumps">0</b></span>
+          </span>
         </div>
         <div class="panel-b board" aria-label="Dédale jouable">
           <div class="gridbox" id="gb">
@@ -412,15 +420,20 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
           <h3>Saute</h3>
           <p>Tu peux atterrir sur <b>n’importe quelle case</b> dans cette direction, à 1, 2, 5 ou 10 cases. Recommence depuis la case d’arrivée. Le dédale est plongé dans le noir : seules les cases que tu peux atteindre et celles que tu as traversées s’éclairent.</p>
         </article>
-        <article class="step cy" data-n="3">
+        <article class="step" data-n="3">
+          <i class="fi fi-br-rotate-right"></i>
+          <h3>Le dédale tourne</h3>
+          <p>Après un saut de <b>k cases</b>, toutes les flèches tournent de <b>k × 45°</b> dans le sens des aiguilles d’une montre : 1 case, un huitième de tour ; 2 cases, un quart de tour… Le plateau les tourne pour toi, et le compteur indique la rotation actuelle.</p>
+        </article>
+        <article class="step cy" data-n="4">
           <i class="fi fi-br-flag-checkered"></i>
           <h3>Trouve la sortie</h3>
-          <p>Le but est d’atteindre le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> en haut à gauche.</p>
+          <p>Le but est d’atteindre le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> en haut à gauche, <b>avec les flèches revenues à +0°</b>. La sortie tourne elle aussi : tant que sa flèche ne pointe pas vers le haut, elle reste verrouillée.</p>
         </article>
       </div>
       <div class="note">
         <i class="fi fi-br-info"></i>
-        <p>Toutes les cases de la grille sont accessibles depuis le bas, mais <b>une seule case de départ</b> permet d’atteindre la sortie. Les 10 autres n’y mènent jamais : on y tourne en rond pour toujours, ou l’on s’y retrouve bloqué. Il n’existe qu’un seul chemin vers la sortie : 23 sauts exactement, sans raccourci ni détour possible. Mes messages ne donnent que la direction, jamais la distance : lire les flèches dans l’ordre ne suffit pas pour tracer le chemin.</p>
+        <p>Toutes les cases de la grille sont accessibles depuis le bas, mais <b>une seule case de départ</b> permet d’atteindre la sortie. Les 10 autres n’y mènent jamais : on y tourne en rond pour toujours, ou l’on s’y retrouve bloqué. Il n’existe qu’un seul chemin vers la sortie : 23 sauts exactement, sans raccourci ni détour possible. Une même case peut mener ailleurs selon l’orientation du dédale au moment où l’on y arrive : ce n’est pas parce qu’une case t’a perdu une fois qu’elle ne fait pas partie du chemin. Mes messages ne donnent que la direction, jamais la distance : lire les flèches dans l’ordre ne suffit pas pour tracer le chemin.</p>
       </div>
     </div>
   </section>
@@ -465,6 +478,13 @@ const N=M.n;
 const ROT={N:0,NE:45,E:90,SE:135,S:180,SW:225,W:270,NW:315};
 const NOM={N:"le haut",NE:"le haut à droite",E:"la droite",SE:"le bas à droite",S:"le bas",SW:"le bas à gauche",W:"la gauche",NW:"le haut à gauche"};
 const DV={N:[0,-1],NE:[1,-1],E:[1,0],SE:[1,1],S:[0,1],SW:[-1,1],W:[-1,0],NW:[-1,-1]};
+// Règle de rotation : après un saut de k cases, toutes les flèches tournent de k × 45° (sens horaire).
+const DIRS=["N","NE","E","SE","S","SW","W","NW"];
+const rot=(d,r)=>DIRS[(DIRS.indexOf(d)+r)%8];
+const dist=(a,b)=>Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]));
+const turns=t=>{let s=0;for(let i=1;i<t.length;i++)s+=dist(t[i-1],t[i]);return s;}; // huitièmes de tour cumulés
+// Direction réelle de chaque saut d'un chemin (flèche de la case, tournée)
+const jumpDirs=p=>{const s=[...p,[0,0]];let r=0;return p.map(([x,y],i)=>{const d=rot(M.grid[y][x],r);r=(r+dist(s[i],s[i+1]))%8;return d;});};
 const $=id=>document.getElementById(id);
 const arrow=d=>'<svg class="ar" style="--r:'+ROT[d]+'deg" aria-hidden="true"><use href="#i-arrow"/></svg>';
 const posted=M.revealed.length;
@@ -502,13 +522,13 @@ $("reload").addEventListener("click",()=>location.reload());
 const cellsEl=$("cells"),el={};
 for(let y=0;y<N;y++)for(let x=0;x<N;x++){
   const d=M.grid[y][x],b=document.createElement("button");
-  b.type="button";b.className="c";b.innerHTML=arrow(d);b.style.setProperty("--r",ROT[d]+"deg");
-  b.dataset.l="Case colonne "+(x+1)+", ligne "+(y+1);b.dataset.d=", flèche vers "+NOM[d];
+  b.type="button";b.className="c";b.innerHTML='<svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg>';b.style.setProperty("--r",ROT[d]+"deg");
+  b.dataset.l="Case colonne "+(x+1)+", ligne "+(y+1);b.dataset.a=d;
   if(x===0&&y===0)b.classList.add("exit"); if(y===N-1)b.classList.add("row");
   b.addEventListener("click",()=>clickCell(x,y));
   cellsEl.appendChild(b); el[x+","+y]=b;
 }
-function ray(x,y){if(x===0&&y===0)return[];const[dx,dy]=DV[M.grid[y][x]];const o=[];let a=x+dx,b=y+dy;while(a>=0&&a<N&&b>=0&&b<N){o.push([a,b]);a+=dx;b+=dy}return o}
+function ray(x,y,r){if(x===0&&y===0)return[];const[dx,dy]=DV[rot(M.grid[y][x],r)];const o=[];let a=x+dx,b=y+dy;while(a>=0&&a<N&&b>=0&&b<N){o.push([a,b]);a+=dx;b+=dy}return o}
 let trail=[];
 // Suivi des parties dans Microsoft Clarity (présent seulement en ligne) : une victoire en 23 sauts (BEST),
 // sans retour ni nouveau départ et très rapide, mérite un coup d’œil.
@@ -519,15 +539,18 @@ const st=$("status"),stIco=st.querySelector(".fi"),stText=$("stText"),undo=$("un
 const ICO={idle:"fi-br-map-marker",play:"fi-br-bolt",stuck:"fi-br-cross-small",win:"fi-br-trophy"};
 function setStatus(s,txt){st.dataset.s=s;stIco.className="fi "+ICO[s];stText.textContent=txt;}
 const pt=([x,y])=>(x+.5)+","+(y+.5);
-const atExit=()=>trail.length&&trail[trail.length-1][0]===0&&trail[trail.length-1][1]===0;
+const onExit=()=>trail.length&&trail[trail.length-1][0]===0&&trail[trail.length-1][1]===0;
+const atExit=()=>onExit()&&turns(trail)%8===0; // la sortie ne s'ouvre qu'avec les flèches à +0°
 function render(){
   Object.values(el).forEach(b=>b.classList.remove("trail","here","can"));
+  // Rotation : cumulée (pour que l'animation tourne toujours dans le bon sens) et réduite à 8 orientations.
+  const tr=turns(trail),r=tr%8;
   let can=[];
   if(!trail.length){for(let x=0;x<N;x++)can.push([x,N-1]);}
   else{
     trail.forEach(([x,y])=>el[x+","+y].classList.add("trail"));
     const [hx,hy]=trail[trail.length-1];el[hx+","+hy].classList.remove("trail");el[hx+","+hy].classList.add("here");
-    can=ray(hx,hy);
+    can=ray(hx,hy,r);
   }
   can.forEach(([x,y])=>el[x+","+y].classList.add("can"));
   // Brouillard : seules la ligne de départ, la sortie, les cases traversées et les sauts possibles sont éclairés.
@@ -535,17 +558,27 @@ function render(){
   for(let x=0;x<N;x++)lit.add(x+","+(N-1));
   trail.forEach(([x,y],i)=>{
     lit.add(x+","+y);const nx=trail[i+1];if(!nx)return;
-    for(const[a,b]of ray(x,y)){if(a===nx[0]&&b===nx[1])break;lit.add(a+","+b);}
+    for(const[a,b]of ray(x,y,turns(trail.slice(0,i+1))%8)){if(a===nx[0]&&b===nx[1])break;lit.add(a+","+b);}
   });
   can.forEach(([x,y])=>lit.add(x+","+y));
-  for(const k in el){const b=el[k],on=lit.has(k);b.classList.toggle("fog",!on);b.setAttribute("aria-label",b.dataset.l+(on?b.dataset.d:", pas encore découverte"));}
+  for(const k in el){
+    const b=el[k],on=lit.has(k),exit=k==="0,0";
+    // La sortie tourne aussi : sa flèche ne pointe vers le haut (sortie ouverte) qu'à +0°.
+    b.style.setProperty("--r",(ROT[b.dataset.a]+45*tr)+"deg");
+    b.classList.toggle("fog",!on);
+    b.setAttribute("aria-label",b.dataset.l+(exit?(r?", sortie verrouillée, flèche vers "+NOM[rot("N",r)]:", sortie ouverte"):on?", flèche vers "+NOM[rot(b.dataset.a,r)]:", pas encore découverte"));
+  }
+  $("rotv").textContent="+"+(45*r)+"°";$("rotar").style.setProperty("--r",(45*tr)+"deg");
   Object.values(el).forEach(b=>b.tabIndex=b.classList.contains("can")||b.classList.contains("here")?0:-1);
   $("trailsvg").innerHTML=trail.length?'<polyline points="'+trail.map(pt).join(" ")+'"/><circle cx="'+(trail[0][0]+.5)+'" cy="'+(trail[0][1]+.5)+'" r=".12"/>':"";
   const sauts=Math.max(0,trail.length-1);$("jumps").textContent=sauts;
   if(!trail.length)setStatus("idle","Choisis une case de départ sur la ligne du bas.");
   else if(atExit())setStatus("win","Sortie atteinte en "+sauts+" sauts. Bravo !");
+  else if(onExit())setStatus("stuck","Sortie verrouillée : tu arrives avec les flèches à +"+(45*r)+"°, elle ne s’ouvre qu’à +0°. Reviens d’un saut.");
   else if(!can.length)setStatus("stuck","Impasse : aucune case dans cette direction. Reviens d’un saut.");
-  else setStatus("play",sauts?sauts+" saut"+(sauts>1?"s":"")+" · choisis une case en surbrillance.":"C’est parti ! Choisis une case en surbrillance.");
+  else if(sauts){const k=dist(trail[trail.length-2],trail[trail.length-1]);
+    setStatus("play",sauts+" saut"+(sauts>1?"s":"")+" · saut de "+k+" case"+(k>1?"s":"")+" : les flèches ont tourné "+(k<8?"de "+45*k+"°":"d’un tour complet"+(k>8?" + "+45*(k-8)+"°":""))+".");}
+  else setStatus("play","C’est parti ! Choisis une case en surbrillance.");
   if(!atExit())win.hidden=true;
   undo.disabled=!trail.length;reset.disabled=!trail.length;
 }
@@ -581,11 +614,11 @@ const fmt=new Intl.DateTimeFormat("fr-FR",{weekday:"short",day:"numeric",month:"
 const cal=$("cal");
 const breaks={"2027-01-08":"Vacances de Noël","2027-02-26":"Vacances d’hiver","2027-04-23":"Vacances de printemps","2027-05-14":"Pont de l’Ascension (7 mai)"};
 function renderCal(){
-  const known=path||M.revealed;
+  const known=path?jumpDirs(path):M.revealed; // directions des sauts (la solution complète seulement pour le prof)
   cal.textContent="";
   M.fridays.forEach((f,i)=>{
     if(breaks[f]){const g=document.createElement("li");g.className="gap";g.innerHTML="<span></span>";g.firstChild.textContent=breaks[f];cal.appendChild(g);}
-    const li=document.createElement("li"),d=i<known.length?M.grid[known[i][1]][known[i][0]]:null;
+    const li=document.createElement("li"),d=i<known.length?known[i]:null;
     li.className=i<posted?"done":i===posted?"next":"todo";
     const etat=i<posted?"Publiée":i===posted?"Prochaine · 20 h 30":"À venir";
     li.innerHTML='<span class="dot"></span><span class="d"><b>'+fmt.format(new Date(f+"T12:00:00"))+'</b><small><span class="n">'+String(i+1).padStart(2,"0")+'</span>'+etat+'</small></span>'+

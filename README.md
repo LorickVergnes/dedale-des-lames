@@ -20,6 +20,13 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 Événements envoyés : `visite`, `depart`, `victoire`, `victoire_parfaite` (23 sauts, aucun retour, aucun nouveau départ), `victoire_rejouee`, `code_prof_faux`, `code_prof_ok`.
 Étiquettes : `case_depart`, `departs`, `sauts_victoire`, `sauts_total`, `annulations`, `recommencements`, `duree_s`, `sans_erreur`, `fleches_publiees`, `prof`.
 
+## Règles et générateur
+
+- **Le dédale tourne** : après un saut de *k* cases, toutes les flèches tournent de *k* × 45° (sens horaire). La sortie ne s'ouvre que si l'on y arrive avec les flèches à +0°.
+- La flèche publiée chaque vendredi est la **direction réelle du saut** n° *i* (flèche de la case, tournée), jamais la case elle-même.
+- `node generer.mjs` crée une nouvelle grille (`dedale.json`) et sa solution (`prive/solution.json`), en archivant les anciennes dans `prive/archives/`. Il garantit un départ et un chemin uniques de 23 sauts, toutes les cases accessibles, et un chemin qui traverse chaque ligne et chaque colonne. `node generer.mjs --essai` n'écrit rien.
+- Après chaque nouvelle grille : mettre à jour le secret `SOLUTION_JSON` avec le contenu de `prive/solution.json`.
+
 ## Bon à savoir
 
 - Le dossier `prive/` (ignoré par git) garde la version complète `dedale-des-lames-complet.html`, utilisable hors ligne.

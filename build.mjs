@@ -1,8 +1,9 @@
 // Construit dist/index.html à partir de index.html + dedale.json (Le Dédale des Lames).
 // La solution (SOLUTION_JSON) et le code prof (REVEAL_PASSWORD) viennent des secrets GitHub,
 // ou en local des fichiers prive/solution.json et prive/mot-de-passe.txt.
-// Les flèches sont postées du départ vers la sortie ; seules celles dont la date est passée
-// (heure de Paris) sont publiées en clair, la solution complète est chiffrée (AES-256-GCM, clé dérivée du code par PBKDF2).
+// Les flèches sont postées du départ vers la sortie : la flèche du vendredi n° i est la direction réelle du saut n° i
+// (flèche de la case tournée selon la règle de rotation). Seules celles dont la date est passée (heure de Paris)
+// sont publiées, sans la case correspondante ; la solution complète est chiffrée (AES-256-GCM, clé dérivée du code par PBKDF2).
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { randomBytes, pbkdf2Sync, createCipheriv } from "node:crypto";
 
@@ -22,16 +23,25 @@ if (password.length < 12) console.warn("Attention : code de moins de 12 caractè
 // La dernière case saute vers la sortie [0,0], qui ne fait pas partie de la liste.
 let path;
 try { path = JSON.parse(solutionTxt); } catch { fail("SOLUTION_JSON n'est pas du JSON valide."); }
+// Règle de rotation : après un saut de k cases, toutes les flèches tournent de k × 45° (sens horaire),
+// et la sortie ne s'ouvre que si l'on y arrive avec les flèches à +0°.
+const DIRS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
 const DV = { N: [0, -1], NE: [1, -1], E: [1, 0], SE: [1, 1], S: [0, 1], SW: [-1, 1], W: [-1, 0], NW: [-1, -1] };
+const rot = (d, r) => DIRS[(DIRS.indexOf(d) + r) % 8];
 if (!Array.isArray(path) || path.length !== fridays.length) fail(`il faut ${fridays.length} cases dans la solution (une par vendredi).`);
 if (path[0][1] !== n - 1) fail("la première case doit être sur la ligne du bas.");
 const steps = [...path, [0, 0]];
+const jumpDirs = []; // direction réelle de chaque saut, une fois les flèches tournées : c'est la flèche publiée chaque vendredi
+let r = 0;
 for (let i = 0; i < path.length; i++) {
-  const [fx, fy] = steps[i], [tx, ty] = steps[i + 1], [dx, dy] = DV[grid[fy][fx]];
+  const [fx, fy] = steps[i], [tx, ty] = steps[i + 1], d = rot(grid[fy][fx], r), [dx, dy] = DV[d];
   const k = dx ? (tx - fx) / dx : (ty - fy) / dy;
   if (!(k >= 1 && Number.isInteger(k) && fx + k * dx === tx && fy + k * dy === ty))
-    fail(`saut impossible de [${fx},${fy}] vers [${tx},${ty}].`);
+    fail(`saut impossible de [${fx},${fy}] vers [${tx},${ty}] (flèche tournée vers ${d}).`);
+  jumpDirs.push(d);
+  r = (r + k) % 8;
 }
+if (r !== 0) fail(`le chemin arrive à la sortie avec les flèches à +${r * 45}° : la sortie ne s'ouvre qu'à +0°.`);
 
 // Chaque flèche sort le vendredi à 20 h 30, heure de Paris. BUILD_DATE ("2027-01-15" ou "2027-01-15 20:30") simule une date.
 const RELEASE = "20:30";
@@ -52,7 +62,7 @@ const ct = Buffer.concat([cipher.update(JSON.stringify(path), "utf8"), cipher.fi
 
 const data = {
   n, grid, fridays,
-  revealed: path.slice(0, posted),
+  revealed: jumpDirs.slice(0, posted), // seulement les directions, jamais les cases
   enc: { iter, salt: salt.toString("base64"), iv: iv.toString("base64"), ct: ct.toString("base64") },
 };
 // Microsoft Clarity : ajouté seulement si la variable CLARITY_ID est définie (en ligne), pas en local.
