@@ -1,12 +1,12 @@
 # Le Dédale des Lames
 
-Chaque vendredi à 20 h 30 (heure de Paris), une GitHub Action reconstruit la page et publie la flèche du jour.
+Chaque vendredi à 20 h 30 (heure de Paris), une GitHub Action reconstruit la page et publie la flèche du jour de chacun des trois niveaux.
 La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et la page n'en contient qu'une version chiffrée que seul le code prof permet d'ouvrir. Le bouton « Révéler la solution » est caché aux joueurs : il n'apparaît qu'en ouvrant l'adresse du site suivie de `#prof` (à garder en favori).
 
 ## Mise en place (une seule fois)
 
 1. **Settings → Secrets and variables → Actions → New repository secret**, créer :
-   - `SOLUTION_JSON` : le contenu de `prive/solution.json` (les 23 cases du chemin dans l’ordre des vendredis, de la case de départ à celle qui saute vers la sortie) ;
+   - `SOLUTION_JSON` : le contenu de `prive/solution.json` (pour chaque niveau, les 20 cases du chemin dans l’ordre des vendredis, de la case de départ à celle qui saute vers la sortie) ;
    - `REVEAL_PASSWORD` : le code prof (au moins 12 caractères, idéalement 4 ou 5 mots au hasard).
 2. **Settings → Pages → Build and deployment → Source : GitHub Actions.**
 3. **Actions → Publier le Dédale des Lames → Run workflow** pour la première publication.
@@ -17,14 +17,19 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 2. Dans Clarity, **Settings → Setup → Cookies : désactivé**, et **Masking : Strict**.
 3. Sur GitHub, **Settings → Secrets and variables → Actions → onglet Variables → New repository variable** : `CLARITY_ID` = le Project ID. Puis relancer l'Action.
 
-Événements envoyés : `visite`, `depart`, `victoire`, `victoire_parfaite` (23 sauts, aucun retour, aucun nouveau départ), `victoire_rejouee`, `code_prof_faux`, `code_prof_ok`.
-Étiquettes : `case_depart`, `departs`, `sauts_victoire`, `sauts_total`, `annulations`, `recommencements`, `duree_s`, `sans_erreur`, `fleches_publiees`, `prof`.
+Événements envoyés : `visite`, `depart`, `victoire`, `victoire_parfaite` (20 sauts, aucun retour, aucun nouveau départ), `victoire_rejouee`, `code_prof_faux`, `code_prof_ok`.
+Étiquettes : `niveau` (`facile`, `moyen` ou `difficile`), `case_depart`, `departs`, `sauts_victoire`, `sauts_total`, `annulations`, `recommencements`, `duree_s`, `sans_erreur`, `fleches_publiees`, `prof`.
 
 ## Règles et générateur
 
-- **Le dédale tourne** : après un saut de *k* cases, toutes les flèches tournent de *k* × 45° (sens horaire). La sortie ne s'ouvre que si l'on y arrive avec les flèches à +0°.
-- La flèche publiée chaque vendredi est la **direction réelle du saut** n° *i* (flèche de la case, tournée), jamais la case elle-même.
-- `node generer.mjs` crée une nouvelle grille (`dedale.json`) et sa solution (`prive/solution.json`), en archivant les anciennes dans `prive/archives/`. Il garantit un départ et un chemin uniques de 23 sauts, toutes les cases accessibles, et un chemin qui traverse chaque ligne et chaque colonne. `node generer.mjs --essai` n'écrit rien.
+- **Trois niveaux**, chacun avec sa grille, son chemin, son départ et ses flèches (décrits dans `dedale.json`) :
+  - **facile** : tout le plateau est visible, pas de rotation ; pièges courts (on comprend vite qu'on s'est trompé), une douzaine d'impasses visibles ;
+  - **moyen** : brouillard, pas de rotation ; pièges plus longs, surtout des boucles, et plus de cases qui ressemblent à la bonne ;
+  - **difficile** : brouillard et rotation (la grille et la séquence Forme 1).
+- **Le dédale tourne** (difficile) : après un saut de *k* cases, toutes les flèches tournent de *k* × 45° (sens horaire). La sortie ne s'ouvre que si l'on y arrive avec les flèches à +0°.
+- La flèche publiée chaque vendredi, pour chaque niveau, est la **direction réelle du saut** n° *i* (flèche de la case, tournée en difficile), jamais la case elle-même.
+- `node generer.mjs <facile|moyen|difficile>` crée une nouvelle grille pour ce niveau seulement (dans `dedale.json`) et son chemin (dans `prive/solution.json`), en archivant les anciens fichiers dans `prive/archives/`. Il garantit un départ et un chemin uniques (un saut par vendredi, 20 au total), un départ différent des autres niveaux, toutes les cases accessibles et un chemin qui traverse chaque ligne et chaque colonne. Les pièges sont dosés par niveau (`PROFILS` en haut du script). Ajouter `--essai` pour ne rien écrire.
+- **Séquence imposée** : si `prive/sequence-<niveau>.json` existe (ex. `["N","S",…,"NW"]` ; aujourd’hui seulement pour le difficile), le chemin suit exactement ces directions de saut, une par vendredi, avec les mêmes noms que la grille. La dernière est le saut qui atterrit sur la sortie : elle doit être `NW`, `N` ou `W`. Ce fichier reste privé (il donne toutes les flèches à l’avance).
 - Après chaque nouvelle grille : mettre à jour le secret `SOLUTION_JSON` avec le contenu de `prive/solution.json`.
 
 ## Bon à savoir
