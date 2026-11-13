@@ -39,10 +39,19 @@ const rot = (d, r) => DIRS[(DIRS.indexOf(d) + r + 8) % 8];
 //   proche  : pénalité des impasses trouvables en 2 sauts ou moins depuis le bas ;
 //   mort    : pénalité de chaque impasse (flèche qui sort du plateau) ou, si impasses est donné, de chaque impasse
 //             d'écart avec ce nombre visé. Une impasse se voit tout de suite (« aucune case dans cette direction ») ;
-//             sans elle, un piège est une boucle, plus longue à comprendre.
+//             sans elle, un piège est une boucle, plus longue à comprendre ;
+//   depart  : exigences pour chacun des 10 faux départs (ligne du bas), pour qu'aucun ne s'élimine d'un coup d'œil :
+//             sauts   = nombre minimal de cases où l'on peut sauter depuis ce départ (0 = flèche qui sort du plateau) ;
+//             zone    = nombre minimal de cases qu'il faut explorer avant d'avoir fait le tour de ce départ ;
+//             impasse = nombre minimal de sauts avant de pouvoir tomber sur une impasse ;
+//             bloques = nombre maximal de faux départs sans aucune flèche possible (contrainte géométrique) ;
+//             le vrai départ ne pointe jamais vers N, et la ligne du bas évite les flèches horizontales et répétées ;
+//   zone    : nombre minimal de cases accessibles depuis toute case hors du chemin. Une case d'où l'on ne peut aller
+//             que dans 2 ou 3 cases (une colonne de flèches qui descendent vers le bord, par exemple) forme une
+//             « zone morte » qu'on repère et qu'on raye vite de la carte.
 const PROFILS = {
-  facile: { piege: [1, 3], leurres: 6, impasses: 12, proche: 0, mort: 8 },
-  moyen: { piege: [3, 7], leurres: 14, impasses: 5, proche: 40, mort: 8 },
+  facile: { piege: [3, 6], leurres: 10, impasses: 4, proche: 40, mort: 8, depart: { sauts: 2, zone: 12, impasse: 3, bloques: 2 }, zone: 8 },
+  moyen: { piege: [5, 10], leurres: 18, impasses: 2, proche: 40, mort: 8, depart: { sauts: 3, zone: 25, impasse: 5, bloques: 2 }, zone: 15 },
   difficile: { piege: null, leurres: null, impasses: null, proche: 40, mort: 8 },
 };
 
@@ -166,7 +175,9 @@ function makePath() {
     }
     if (!f && !consistent()) { undo(); return false; }
     const options = [];
-    const wanted = SEQ ? [SEQ[i]] : DIRS;
+    // Facile et moyen : un faux départ ne peut jamais pointer vers N (le chemin passe par toutes les colonnes) ;
+    // un vrai départ vers N serait donc le seul de la ligne du bas et se repérerait tout de suite.
+    const wanted = SEQ ? [SEQ[i]] : i === 0 && P.depart ? DIRS.filter((d) => d !== "N") : DIRS;
     for (const e of (f ? [rot(f, r)] : DIRS).filter((d) => wanted.includes(d))) {
       const [dx, dy] = DV[e];
       for (let k = 1; inside(x + k * dx, y + k * dy); k++) {
@@ -199,7 +210,27 @@ function pathOk({ path }) {
   const revisits = L - new Set(path.map(([x, y]) => cid(x, y))).size;
   if (ROTATE && (revisits < 1 || revisits > 3)) return false;
   const rows = new Set(path.map(([, y]) => y)), cols = new Set(path.map(([x]) => x));
-  return rows.size === n && cols.size === n;
+  if (rows.size !== n || cols.size !== n) return false;
+  // Faux départs : chacun doit pouvoir recevoir une flèche qui mène à au moins D.sauts cases sans jamais toucher le
+  // chemin ni la sortie (sinon ce serait un autre départ gagnant). Sans cela, le générateur n'a plus que des flèches
+  // qui sortent du plateau, et ces départs s'éliminent d'un coup d'œil.
+  // Certaines cases n'ont parfois aucune flèche possible (le coin en bas à droite : N tombe sur le chemin, NW sur la
+  // sortie, W sur le vrai départ) : on en tolère au plus D.bloques.
+  if (P.depart) {
+    const cells = new Set(path.map(([x, y]) => cid(x, y))); cells.add(cid(0, 0));
+    let bloques = 0;
+    for (let x = 0; x < n; x++) {
+      if (x === path[0][0]) continue;
+      const ok = DIRS.some((d) => {
+        const [dx, dy] = DV[d]; let k = 0;
+        for (let a = x + dx, b = n - 1 + dy; inside(a, b); a += dx, b += dy, k++) if (cells.has(cid(a, b))) return false;
+        return k >= Math.min(2, P.depart.sauts); // filtre souple : le recuit pousse ensuite vers D.sauts
+      });
+      if (!ok) bloques++;
+    }
+    if (bloques > P.depart.bloques) return false;
+  }
+  return true;
 }
 
 // ---------- 2. Évaluation d'une grille ----------
@@ -214,6 +245,26 @@ function trapDepth(b, succ) {
     for (const c of succ[a]) if (mark[c] !== markId) { mark[c] = markId; dist[c] = dist[a] + 1; depth = dist[c]; q.push(c); }
   }
   return depth;
+}
+// Nombre d'états atteignables depuis b (b compris), en s'arrêtant à cap.
+function zoneSize(b, succ, cap) {
+  markId++; mark[b] = markId;
+  const q = [b];
+  for (let h = 0; h < q.length && q.length < cap; h++)
+    for (const c of succ[q[h]]) if (mark[c] !== markId) { mark[c] = markId; q.push(c); }
+  return Math.min(q.length, cap);
+}
+// Nombre minimal de sauts depuis b avant d'atteindre une impasse (plafonné à cap).
+function deadDist(b, succ, cap) {
+  markId++; mark[b] = markId; dist[b] = 0;
+  const q = [b];
+  for (let h = 0; h < q.length; h++) {
+    const a = q[h];
+    if (!succ[a].length && !isExitCell(a)) return dist[a];
+    if (dist[a] >= cap) continue;
+    for (const c of succ[a]) if (mark[c] !== markId) { mark[c] = markId; dist[c] = dist[a] + 1; q.push(c); }
+  }
+  return cap;
 }
 const dirOf = (grid, a) => { const c = a >> 3; return rot(grid[(c / n) | 0][c % n], a & 7); };
 
@@ -273,13 +324,42 @@ function evaluate(grid, path, final = false) {
   let score = 1000 * viol + 300 * unreached + P.mort * (P.impasses === null ? dead0 : Math.abs(dead0 - P.impasses)) +
     P.proche * deadNear + 15 * lowDeg - reached / 2;
   if (P.piege) score += 20 * trapPen + 8 * Math.abs(leurres - P.leurres);
-  return { score, viol, unreached, dead0, deadNear, lowDeg, reached, traps, profondeurMoy: traps ? +(depthSum / traps).toFixed(1) : 0, horsCible: trapPen, leurres };
+  // Faux départs trop vite éliminés, et zones mortes (cases hors chemin qui ne mènent presque nulle part).
+  let departPen = 0, departsFaibles = 0, zonesMortes = 0;
+  if (P.depart) {
+    const D = P.depart;
+    for (let x = 0; x < n; x++) {
+      const a = sid(x, n - 1, 0);
+      if (a === pathIds[0]) continue;
+      const pen = 40 * Math.max(0, D.sauts - succ[a].length) + 4 * Math.max(0, D.zone - zoneSize(a, succ, D.zone)) +
+        30 * Math.max(0, D.impasse - deadDist(a, succ, D.impasse));
+      if (pen) departsFaibles++;
+      departPen += pen;
+    }
+    // Ligne du bas variée : les flèches horizontales et les voisines identiques forment un motif (« W W W W… »).
+    const bas = grid[n - 1];
+    for (let x = 0; x < n; x++) {
+      if (bas[x] === "E" || bas[x] === "W") departPen += 6;
+      if (x && bas[x] === bas[x - 1]) departPen += 5;
+    }
+    score += departPen;
+  }
+  if (P.zone) {
+    for (let a = 0; a < NS; a++) {
+      if (!reach[a] || onPath.has(a) || isExitCell(a)) continue;
+      const miss = P.zone - zoneSize(a, succ, P.zone);
+      if (miss > 0) { zonesMortes++; score += 3 * miss; }
+    }
+  }
+  return { score, viol, unreached, dead0, deadNear, lowDeg, reached, traps, profondeurMoy: traps ? +(depthSum / traps).toFixed(1) : 0, horsCible: trapPen, leurres, departsFaibles, zonesMortes };
 }
 
 // ---------- 3. Recherche ----------
-let best = null;
+// Facile et moyen : on garde la meilleure de plusieurs grilles valides (CANDIDATS), pas la première trouvée.
+let best = null, valides = 0;
+const CANDIDATS = P.depart ? 4 : 1;
 const t0 = Date.now();
-for (let tentative = 1; tentative <= 60 && !best; tentative++) {
+for (let tentative = 1; tentative <= 60 && valides < CANDIDATS; tentative++) {
   let p = null, essais = 0;
   while (!(p && pathOk(p)) && essais++ < 20000) p = makePath();
   if (!p || !pathOk(p)) { console.log(`tentative ${tentative} : pas de chemin`); continue; }
@@ -297,7 +377,10 @@ for (let tentative = 1; tentative <= 60 && !best; tentative++) {
     if (nv.score <= cur.score || rnd() < Math.exp((cur.score - nv.score) / T)) cur = nv; else grid[y][x] = old;
   }
   console.log(`tentative ${tentative} (${essais} chemins essayés, ${((Date.now() - t0) / 1000).toFixed(0)} s) : ${JSON.stringify(cur)}`);
-  if (cur.viol === 0 && cur.unreached === 0 && evaluate(grid, p.path, true).viol === 0) best = { grid, path: p.path, stats: cur };
+  if (cur.viol === 0 && cur.unreached === 0 && evaluate(grid, p.path, true).viol === 0) {
+    valides++;
+    if (!best || cur.score < best.stats.score) best = { grid, path: p.path, stats: cur };
+  }
 }
 if (!best) { console.error("Aucune grille valide trouvée, relance la commande."); process.exit(1); }
 
@@ -316,6 +399,8 @@ if (P.piege) {
   console.log(`  pièges accessibles depuis le chemin : ${stats.traps}, profondeur moyenne ${stats.profondeurMoy} sauts (visée ${P.piege[0]} à ${P.piege[1]})`);
   console.log(`  leurres (piège dont la flèche ressemble à la bonne) : ${stats.leurres} (visé ${P.leurres})`);
 }
+if (P.depart) console.log(`  faux départs éliminables trop vite : ${stats.departsFaibles} / ${n - 1}`);
+if (P.zone) console.log(`  cases hors chemin en « zone morte » (moins de ${P.zone} cases accessibles) : ${stats.zonesMortes}`);
 if (ROTATE) console.log(`  cases du chemin repassées avec une autre orientation : ${revisits}`);
 console.log(`  le chemin couvre toutes les lignes et toutes les colonnes : oui`);
 if (essai) { console.log("\n--essai : rien n'a été écrit."); process.exit(0); }

@@ -23,12 +23,13 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 ## Règles et générateur
 
 - **Trois niveaux**, chacun avec sa grille, son chemin, son départ et ses flèches (décrits dans `dedale.json`) :
-  - **facile** : tout le plateau est visible, pas de rotation ; pièges courts (on comprend vite qu'on s'est trompé), une douzaine d'impasses visibles ;
-  - **moyen** : brouillard, pas de rotation ; pièges plus longs, surtout des boucles, et plus de cases qui ressemblent à la bonne ;
+  - **facile** : tout le plateau est visible, pas de rotation ; pièges de longueur moyenne, peu d'impasses (environ 4), aucun faux départ qui s'élimine d'un coup d'œil ;
+  - **moyen** : brouillard, pas de rotation ; pièges plus longs, surtout des boucles, presque aucune impasse et plus de cases qui ressemblent à la bonne ;
+  - en facile et en moyen, chaque faux départ mène à plusieurs cases (aucune flèche du bas ne sort du plateau) et il faut explorer un bon nombre de cases avant de comprendre qu'il ne mène nulle part ; aucune case hors du chemin ne forme une petite « zone morte » (colonne de flèches qui descendent vers le bord, etc.) ;
   - **difficile** : brouillard et rotation (la grille et la séquence Forme 1).
 - **Le dédale tourne** (difficile) : après un saut de *k* cases, toutes les flèches tournent de *k* × 45° (sens horaire). La sortie ne s'ouvre que si l'on y arrive avec les flèches à +0°.
 - La flèche publiée chaque vendredi, pour chaque niveau, est la **direction réelle du saut** n° *i* (flèche de la case, tournée en difficile), jamais la case elle-même.
-- `node generer.mjs <facile|moyen|difficile>` crée une nouvelle grille pour ce niveau seulement (dans `dedale.json`) et son chemin (dans `prive/solution.json`), en archivant les anciens fichiers dans `prive/archives/`. Il garantit un départ et un chemin uniques (un saut par vendredi, 20 au total), un départ différent des autres niveaux, toutes les cases accessibles et un chemin qui traverse chaque ligne et chaque colonne. Les pièges sont dosés par niveau (`PROFILS` en haut du script). Ajouter `--essai` pour ne rien écrire.
+- `node generer.mjs <facile|moyen|difficile>` crée une nouvelle grille pour ce niveau seulement (dans `dedale.json`) et son chemin (dans `prive/solution.json`), en archivant les anciens fichiers dans `prive/archives/`. Il garantit un départ et un chemin uniques (un saut par vendredi, 20 au total), un départ différent des autres niveaux, toutes les cases accessibles et un chemin qui traverse chaque ligne et chaque colonne. Les pièges, les impasses, les faux départs et les zones mortes sont dosés par niveau (`PROFILS` en haut du script) ; en facile et en moyen, le script garde la meilleure de 4 grilles valides (compter quelques minutes). Ajouter `--essai` pour ne rien écrire.
 - **Séquence imposée** : si `prive/sequence-<niveau>.json` existe (ex. `["N","S",…,"NW"]` ; aujourd’hui seulement pour le difficile), le chemin suit exactement ces directions de saut, une par vendredi, avec les mêmes noms que la grille. La dernière est le saut qui atterrit sur la sortie : elle doit être `NW`, `N` ou `W`. Ce fichier reste privé (il donne toutes les flèches à l’avance).
 - Après chaque nouvelle grille : mettre à jour le secret `SOLUTION_JSON` avec le contenu de `prive/solution.json`.
 

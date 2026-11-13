@@ -5,49 +5,49 @@
     {
       "id": "facile", "nom": "Facile", "brouillard": false, "rotation": false,
       "grid": [
-        ["N","SW","SW","N","SW","W","NE","E","N","SE","S"],
-        ["SW","NE","E","N","NE","E","N","NW","NE","NW","NW"],
-        ["NE","SW","SW","SW","NW","SE","NW","NE","SW","SE","SW"],
-        ["S","NE","SW","NE","S","NW","NE","NW","NE","NW","S"],
-        ["NE","SE","NW","NE","S","E","NW","SE","E","E","S"],
-        ["SE","W","W","N","S","SE","NE","NW","SW","E","S"],
-        ["SE","SE","E","S","S","SE","E","SW","NE","NE","S"],
-        ["E","SE","SE","S","S","SW","SW","NE","NW","S","S"],
-        ["S","W","S","SW","S","SW","NW","W","NE","SE","S"],
-        ["SE","N","SE","SE","SW","E","SW","E","SW","E","S"],
-        ["NW","SW","W","S","SE","S","NW","S","S","E","NE"]
+        ["N","SE","SW","NW","SE","SW","E","E","SW","E","NE"],
+        ["SE","W","W","NE","SW","NE","S","NW","NW","NW","NW"],
+        ["NE","SE","W","NE","NE","NW","W","W","S","NW","NW"],
+        ["N","E","NW","SW","S","N","NE","N","E","E","SW"],
+        ["S","NE","W","W","S","SE","W","E","SW","NE","S"],
+        ["S","SE","NW","SW","NW","NE","SE","S","NE","S","NW"],
+        ["SE","SW","NE","W","S","SE","W","SW","NW","SW","S"],
+        ["SE","SE","N","SW","S","NE","SW","S","SE","W","SW"],
+        ["SE","SE","W","W","S","SW","NW","SE","S","S","SW"],
+        ["S","W","SE","S","W","N","SW","S","NW","S","NW"],
+        ["SE","NE","NW","NE","NW","E","E","NE","NE","NW","S"]
       ]
     },
     {
       "id": "moyen", "nom": "Moyen", "brouillard": true, "rotation": false,
       "grid": [
-        ["N","SW","SW","SE","SE","NW","SE","SE","SE","NE","W"],
-        ["NE","N","S","NW","SE","NE","NE","N","N","NW","N"],
-        ["NE","E","SW","N","NW","NE","SE","SW","NW","E","SW"],
-        ["W","SW","SE","N","NE","SE","N","SE","N","N","NW"],
-        ["NE","NW","SW","N","N","W","E","SE","SW","S","NW"],
-        ["SE","NE","S","SW","N","SW","S","SW","SE","NE","W"],
-        ["SE","N","S","SE","SW","E","SW","E","NE","SE","NW"],
-        ["S","SW","SE","S","NE","SW","SW","E","N","E","NW"],
-        ["S","SW","SE","W","NE","SE","NE","NE","NE","NE","NE"],
-        ["SE","NW","NW","SE","S","N","SW","W","N","E","NW"],
-        ["SE","W","NW","W","W","W","W","NE","NW","E","S"]
+        ["N","E","SE","S","E","E","E","SE","E","E","SW"],
+        ["SE","NE","N","W","E","SW","N","SE","NE","SW","N"],
+        ["NE","SW","NE","SW","NW","E","NW","SE","SW","SE","SW"],
+        ["SE","NE","NW","SE","SE","SE","SE","S","NE","N","NW"],
+        ["N","SE","N","SE","SE","SE","SE","S","N","SW","W"],
+        ["S","SW","NW","SW","E","E","NE","SE","NE","SE","NW"],
+        ["SE","N","N","SE","NE","NE","SE","SE","NW","W","SW"],
+        ["E","SW","S","E","E","E","NE","S","SW","E","SW"],
+        ["SE","S","W","NE","N","NE","N","NW","SW","E","NW"],
+        ["SE","S","E","SW","S","N","S","S","NE","S","SW"],
+        ["NE","W","NW","NE","W","W","NE","W","NW","NW","NE"]
       ]
     },
     {
       "id": "difficile", "nom": "Difficile", "brouillard": true, "rotation": true,
       "grid": [
-        ["N","N","NW","W","SE","E","SW","NE","SE","NE","E"],
-        ["NW","SW","SW","S","E","NE","S","N","W","SE","SW"],
-        ["SE","NW","S","NE","SE","S","SE","SE","S","SW","SE"],
-        ["S","SE","SE","SW","SW","NW","W","SW","NE","E","NW"],
-        ["SW","W","SW","NE","N","W","W","N","SW","SW","SW"],
-        ["S","W","E","NE","NE","SW","N","NW","NW","NW","SE"],
-        ["N","NW","NE","N","S","N","NW","SW","SW","N","NE"],
-        ["SW","E","SE","NW","SW","W","E","NE","NE","E","SW"],
-        ["W","NE","SW","SE","E","S","NE","N","SE","E","SE"],
-        ["SE","SW","SE","E","E","SE","SE","NE","E","N","SE"],
-        ["N","W","SW","SW","NW","NW","SW","N","E","NE","SW"]
+        ["N","SE","NW","N","N","NE","N","N","NE","E","SE"],
+        ["N","E","SW","N","W","SE","NW","NE","W","E","NW"],
+        ["NE","W","SW","NW","SW","NE","NE","N","SE","W","E"],
+        ["W","SE","N","NE","NW","W","N","NW","N","SW","W"],
+        ["N","N","N","E","W","NW","N","SE","E","E","S"],
+        ["NW","NE","SW","S","NE","N","W","N","SE","W","NW"],
+        ["SE","SW","NE","W","SW","SE","N","NE","NE","E","E"],
+        ["SE","S","N","SW","NW","NE","SW","E","E","SE","E"],
+        ["S","E","SE","W","NE","N","E","SW","NW","NE","NE"],
+        ["N","N","S","NW","W","SE","S","SW","W","SE","S"],
+        ["W","NW","N","NE","S","N","S","SE","N","NW","SW"]
       ]
     }
   ]

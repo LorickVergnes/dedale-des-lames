@@ -336,7 +336,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
         <div class="saber" aria-hidden="true"></div>
         <p class="tagline">20 vendredis, 20 flèches, une seule sortie.</p>
         <p class="lede">Le Dédale des Lames est né de l’engouement pour les messages fléchés des cours de F2 à Montpellier. Chaque vendredi de cours, une nouvelle flèche apparaît <b>ici, sur le site, toutes les semaines sans exception</b>, dans le calendrier juste en dessous. Sur le salon Discord «&nbsp;F2-Montpellier&nbsp;», le message fléché qui annonce la prochaine aide n’est posté que les vendredis où Lowgrick (Lorick) est présent en cours. Néanmoins, ces jours-là, l’aide y sera présente quelques heures en avance&nbsp;: soyez à l’affût&nbsp;!</p>
-        <p class="lede"><b>Trois niveaux</b>, trois dédales et trois chemins différents. En <b>facile</b>, tout le plateau est visible. En <b>moyen</b>, il est plongé dans le noir. En <b>difficile</b>, il est dans le noir et <b>il tourne</b> : après chaque saut, toutes les flèches pivotent d’un huitième de tour par case parcourue, si bien que la longueur du saut décide de l’orientation du dédale pour la suite.</p>
+        <p class="lede"><b>Trois niveaux</b>, trois dédales et trois chemins différents. En <b>facile</b>, tout le plateau est visible. En <b>moyen</b>, il est plongé dans le noir. En <b>difficile</b>, il est dans le noir et <b>il tourne</b>.</p>
         <p class="lede">Chaque vendredi, une flèche sort pour chaque niveau, dans l’ordre du chemin : la première est celle du saut depuis la case de départ, cachée sur la ligne du bas, la dernière (le 14 mai) celle du bond vers le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> de la sortie en haut à gauche. Chaque flèche publiée donne la direction réelle du saut (en difficile, une fois le dédale tourné) : <b>jamais la case, jamais la distance</b>.</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#jeu"><i class="fi fi-br-play"></i>Commencer à jouer</a>
@@ -367,7 +367,6 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
         <div class="panel-h">
           <h3><i class="fi fi-br-route"></i>Le plateau</h3>
           <span class="chips">
-            <span class="chip" id="rotchip" title="Rotation actuelle des flèches"><svg class="ar" id="rotar" aria-hidden="true"><use href="#i-arrow"/></svg><b id="rotv">+0°</b></span>
             <span class="chip">Sauts <b id="jumps">0</b></span>
           </span>
         </div>
@@ -436,12 +435,12 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
         <article class="step" data-n="3">
           <i class="fi fi-br-rotate-right"></i>
           <h3>Le dédale tourne</h3>
-          <p>Seulement en difficile. Après un saut de <b>k cases</b>, toutes les flèches tournent de <b>k × 45°</b> dans le sens des aiguilles d’une montre : 1 case, un huitième de tour ; 2 cases, un quart de tour… Le plateau les tourne pour toi, et le compteur indique la rotation actuelle.</p>
+          <p>Seulement en difficile : <b>le dédale tourne</b>. Une même case peut donc servir <b>plusieurs fois</b> sur le chemin et t’envoyer chaque fois dans une autre direction.</p>
         </article>
         <article class="step cy" data-n="4">
           <i class="fi fi-br-flag-checkered"></i>
           <h3>Trouve la sortie</h3>
-          <p>Le but est d’atteindre le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> en haut à gauche. En difficile, il faut y arriver <b>avec les flèches revenues à +0°</b> : la sortie tourne elle aussi, et tant que sa flèche ne pointe pas vers le haut, elle reste verrouillée.</p>
+          <p>Le but est d’atteindre le <span class="inline-ar"><svg class="ar" role="img" aria-label="flèche vers le haut"><use href="#i-arrow"/></svg></span> en haut à gauche. En difficile, la sortie tourne elle aussi : tant que sa flèche ne pointe pas vers le haut, elle reste verrouillée.</p>
         </article>
       </div>
       <div class="note">
@@ -589,17 +588,16 @@ function render(){
     b.classList.toggle("fog",!on);
     b.setAttribute("aria-label",b.dataset.l+(exit?(r?", sortie verrouillée, flèche vers "+NOM[rot("N",r)]:", sortie ouverte"):on?", flèche vers "+NOM[rot(b.dataset.a,r)]:", pas encore découverte"));
   }
-  $("rotv").textContent="+"+(45*r)+"°";$("rotar").style.setProperty("--r",(45*tr)+"deg");
-  $("rotchip").hidden=!LV[lv].rotation;$("lgfog").hidden=!fog;
+  $("lgfog").hidden=!fog;
   Object.values(el).forEach(b=>b.tabIndex=b.classList.contains("can")||b.classList.contains("here")?0:-1);
   $("trailsvg").innerHTML=trail.length?'<polyline points="'+trail.map(pt).join(" ")+'"/><circle cx="'+(trail[0][0]+.5)+'" cy="'+(trail[0][1]+.5)+'" r=".12"/>':"";
   const sauts=Math.max(0,trail.length-1);$("jumps").textContent=sauts;
   if(!trail.length)setStatus("idle","Choisis une case de départ sur la ligne du bas.");
   else if(atExit())setStatus("win","Sortie atteinte en "+sauts+" sauts. Bravo !");
-  else if(onExit())setStatus("stuck","Sortie verrouillée : tu arrives avec les flèches à +"+(45*r)+"°, elle ne s’ouvre qu’à +0°. Reviens d’un saut.");
+  else if(onExit())setStatus("stuck","Sortie verrouillée : sa flèche ne pointe pas vers le haut. Reviens d’un saut.");
   else if(!can.length)setStatus("stuck","Impasse : aucune case dans cette direction. Reviens d’un saut.");
   else if(sauts){const k=dist(trail[trail.length-2],trail[trail.length-1]);
-    setStatus("play",sauts+" saut"+(sauts>1?"s":"")+" · saut de "+k+" case"+(k>1?"s":"")+(LV[lv].rotation?" : les flèches ont tourné "+(k<8?"de "+45*k+"°":"d’un tour complet"+(k>8?" + "+45*(k-8)+"°":"")):"")+".");}
+    setStatus("play",sauts+" saut"+(sauts>1?"s":"")+" · saut de "+k+" case"+(k>1?"s":"")+(LV[lv].rotation?" : le dédale a tourné":"")+".");}
   else setStatus("play","C’est parti ! Choisis une case en surbrillance.");
   if(!atExit())win.hidden=true;
   undo.disabled=!trail.length;reset.disabled=!trail.length;
