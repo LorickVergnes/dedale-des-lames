@@ -174,7 +174,7 @@ section{scroll-margin-top:84px}
 .c.can::after{opacity:1}
 .c.exit.can{background:linear-gradient(180deg,rgba(90,209,245,.35),rgba(90,209,245,.15));box-shadow:inset 0 0 0 2px var(--cyan),0 0 22px -2px var(--cyanGlow);color:#fff}
 @media (hover:hover){.c.can:hover{background:linear-gradient(180deg,rgba(255,139,61,.6),rgba(255,139,61,.36));transform:translateY(-1px)}.c.can:hover .ar{transform:rotate(var(--r)) scale(1.12)}}
-.c.here{z-index:2;color:#1c0c00;background:linear-gradient(180deg,var(--amber2),var(--amber));box-shadow:0 0 0 2px rgba(255,255,255,.18),0 8px 22px -4px var(--amberGlow);transform:scale(1.06)}
+.c.here{z-index:2;cursor:pointer;color:#1c0c00;background:linear-gradient(180deg,var(--amber2),var(--amber));box-shadow:0 0 0 2px rgba(255,255,255,.18),0 8px 22px -4px var(--amberGlow);transform:scale(1.06)}
 .c.here::after{display:none}
 .c:focus-visible{outline:2px solid #fff;outline-offset:1px;z-index:3}
 .show .c.p{background:linear-gradient(180deg,rgba(90,209,245,.22),rgba(90,209,245,.08));color:var(--cyan)}
@@ -607,8 +607,14 @@ function render(){
   undo.disabled=!trail.length;reset.disabled=!trail.length;
 }
 function clickCell(x,y){
-  if(!el[x+","+y].classList.contains("can"))return;
   const kbd=document.activeElement===el[x+","+y]&&el[x+","+y].matches(":focus-visible");
+  // Re-cliquer sur la case où l'on se trouve la désélectionne : on revient d'un saut.
+  if(el[x+","+y].classList.contains("here")){
+    undo.click();
+    if(kbd){const n=document.querySelector(".c.here")||document.querySelector(".c.can");if(n)n.focus({preventScroll:true});}
+    return;
+  }
+  if(!el[x+","+y].classList.contains("can"))return;
   if(!trail.length){
     T.departs++;if(!T.t0)T.t0=Date.now();
     track("depart",{case_depart:x+1,departs:T.departs});
