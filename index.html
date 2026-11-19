@@ -403,7 +403,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
           <div class="status" id="status" data-s="idle" aria-live="polite"><i class="fi fi-br-map-marker"></i><span id="stText">Choisis une case de départ sur la ligne du bas.</span></div>
           <div class="controls">
             <button class="btn btn-ghost" id="undo" type="button" disabled title="Revenir d’un saut (touche Retour arrière)"><i class="fi fi-br-undo"></i><span class="long">Revenir d’un saut</span><span class="short">Retour</span><span class="kbd">⌫</span></button>
-            <button class="btn btn-ghost" id="reset" type="button" disabled><i class="fi fi-br-rotate-right"></i>Recommencer</button>
+            <button class="btn btn-ghost" id="reset" type="button" disabled title="Recommencer la partie (touche R)"><i class="fi fi-br-rotate-right"></i>Recommencer<span class="kbd">R</span></button>
             <button class="btn btn-cyan" id="toggle" type="button" hidden><i class="fi fi-br-lock"></i><span>Révéler la solution</span></button>
           </div>
         </div>
@@ -636,6 +636,7 @@ $("seeMine").addEventListener("click",()=>{win.hidden=true;undo.focus({preventSc
 document.addEventListener("keydown",e=>{
   if($("dlg").open||e.target.closest("input,textarea"))return;
   if(e.key==="Backspace"||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z")){if(trail.length){e.preventDefault();undo.click();}}
+  else if(e.key.toLowerCase()==="r"&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.repeat){if(trail.length){e.preventDefault();reset.click();}}
 });
 render();
 
