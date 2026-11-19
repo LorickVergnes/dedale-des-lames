@@ -192,6 +192,8 @@ svg.lines{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 
 .win-ico{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--amber2),var(--amber));color:#1c0c00;font-size:28px;box-shadow:0 0 0 6px rgba(255,139,61,.15),0 12px 30px -6px var(--amberGlow)}
 .win h4{margin:0;font:700 26px var(--f-display);text-transform:uppercase}
 .win p{margin:6px 0 0;color:var(--text2)}
+.win .win-lv{margin:0 0 6px;font:700 12px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--text3)}
+.win .win-lv b{color:var(--amber2)}
 .best{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:5px 12px;border-radius:999px;background:var(--cyanA);color:var(--cyan);font:700 13px var(--f-body)}
 .win-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:18px}
 
@@ -380,6 +382,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
             <div class="win" id="win" hidden>
               <div class="win-card" role="dialog" aria-labelledby="winT">
                 <div class="win-ico"><i class="fi fi-br-trophy"></i></div>
+                <p class="win-lv">Chemin <b id="winLv"></b></p>
                 <h4 id="winT">Sortie atteinte !</h4>
                 <p>Tu es sorti du dédale en <b id="winN">0</b> sauts.</p>
                 <span class="best" id="winBest" hidden><i class="fi fi-br-sparkles"></i>Le seul chemin possible</span>
@@ -617,7 +620,7 @@ function clickCell(x,y){
     track(T.gagne?"victoire_rejouee":"victoire",tags);
     if(!T.gagne&&sansErreur&&sauts===BEST)track("victoire_parfaite",{});
     T.gagne=true;
-    $("winN").textContent=sauts;$("winBest").hidden=sauts!==BEST;win.hidden=false;$("again").focus({preventScroll:true});
+    $("winLv").textContent=LV[lv].nom;$("winN").textContent=sauts;$("winBest").hidden=sauts!==BEST;win.hidden=false;$("again").focus({preventScroll:true});
   }else if(kbd){const n=document.querySelector(".c.can");if(n)n.focus({preventScroll:true});}
 }
 undo.addEventListener("click",()=>{if(trail.length)T.annulations++;trail.pop();render()});
