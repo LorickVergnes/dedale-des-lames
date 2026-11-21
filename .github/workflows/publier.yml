@@ -9,10 +9,21 @@ on:
     # on relance donc toutes les 15 minutes de 18 h 04 à 22 h 49 UTC, sur des minutes peu chargées.
     # build.mjs ne publie la flèche qu'à partir de 20 h 30 à Paris : les passages trop tôt ne changent rien.
     - cron: "4,19,34,49 18-22 * * 5"
+  # « Run workflow » : republie la page. Avec un numéro d'énigme, la marque d'abord comme trouvée
+  # (enigmes-trouvees.json est mis à jour et commité), ce qui affiche sa réponse à tous et programme la suivante.
   workflow_dispatch:
+    inputs:
+      enigme:
+        description: "Énigme trouvée (numéro : 1, 2, 3…). Laisser vide pour simplement republier."
+        required: false
+        default: ""
+      quand:
+        description: "Trouvée le (AAAA-MM-JJ HH:MM, heure de Paris). Laisser vide pour maintenant."
+        required: false
+        default: ""
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -31,11 +42,25 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+      - name: Marquer l'énigme comme trouvée
+        if: github.event_name == 'workflow_dispatch' && inputs.enigme != ''
+        env:
+          ENIGME: ${{ inputs.enigme }}
+          QUAND: ${{ inputs.quand }}
+          ENIGMES_JSON: ${{ secrets.ENIGMES_JSON }}
+        run: |
+          node valider-enigme.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add enigmes-trouvees.json
+          git commit -m "Énigme $ENIGME trouvée"
+          git push
       - name: Construire la page
         run: node build.mjs
         env:
           SOLUTION_JSON: ${{ secrets.SOLUTION_JSON }}
           REVEAL_PASSWORD: ${{ secrets.REVEAL_PASSWORD }}
+          ENIGMES_JSON: ${{ secrets.ENIGMES_JSON }}
           CLARITY_ID: ${{ vars.CLARITY_ID }}
       - uses: actions/configure-pages@v5
       # Un nom par tentative : sinon « Re-run » trouve plusieurs artifacts et le déploiement échoue.

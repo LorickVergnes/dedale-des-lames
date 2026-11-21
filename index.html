@@ -246,6 +246,34 @@ svg.lines{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 
 .cal li.gap span::after{content:"";flex:1;height:1px;background:var(--border)}
 .cal li.gap::before{content:"";justify-self:center;width:8px;height:8px;border-radius:2px;transform:rotate(45deg);background:var(--border2);z-index:1}
 
+/* Énigmes : un fragment par semaine, débloqué quand le précédent est trouvé */
+.enig{padding:8px 0 40px}
+.enig-intro{margin:0 0 18px;max-width:72ch;color:var(--text2);text-wrap:pretty}
+.frags{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;max-width:860px}
+.frag{min-width:0;padding:20px 22px}
+.frag-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.frag-h h3{display:flex;align-items:center;gap:10px;margin:0;font:700 17px var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.frag-h h3 .fi{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--amberA);color:var(--amber);font-size:14px}
+.chip.ok{color:var(--cyan);border-color:rgba(90,209,245,.4)}
+.frag-q{margin:0;padding:2px 0 2px 16px;border-left:3px solid var(--amber);font:500 17px/1.65 var(--f-body);font-style:italic;color:var(--text);white-space:pre-line;text-wrap:pretty}
+.frag-f{display:flex;gap:8px;margin-top:18px}
+.frag-f input{flex:1;min-width:0;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--border2);background:rgba(8,9,15,.7);color:var(--text);font:600 16px var(--f-body)}
+.frag-f input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 4px rgba(255,139,61,.15)}
+.frag-f input::placeholder{color:var(--text3)}
+.frag-msg{margin:8px 0 0;font-size:14px;font-weight:700;color:var(--text3)}
+.frag-msg:empty{display:none}
+.frag-msg.ko{color:var(--rose)}
+.frag-a{margin-top:18px;padding:14px 16px;border-radius:var(--r-md);background:rgba(90,209,245,.06);border:1px solid rgba(90,209,245,.3);animation:fade .4s ease-out}
+.frag-a small{display:block;font:700 11px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.frag-a strong{display:block;margin:2px 0 6px;font:700 22px/1.2 var(--f-display);text-transform:uppercase;color:var(--cyan)}
+.frag-a p{margin:0;color:var(--text2);text-wrap:pretty}
+.frag-a .mp{margin-top:10px;font-weight:700;color:var(--amber2)}
+.frag.lock{display:flex;align-items:center;gap:14px;border-style:dashed;background:rgba(17,20,31,.5)}
+.frag.lock .ico{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--surface3);color:var(--text3);font-size:17px}
+.frag.lock strong{display:block;font:700 16px var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.frag.lock p{margin:2px 0 0;color:var(--text2);font-size:15px}
+@media (max-width:560px){.frag{padding:16px}.frag-q{font-size:16px;padding-left:12px}}
+
 /* Règles */
 .rules{padding:24px 0 56px}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -323,6 +351,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
     <nav class="nav" aria-label="Navigation">
       <a href="#jeu"><i class="fi fi-br-route"></i>Plateau</a>
       <a href="#calendrier"><i class="fi fi-br-calendar"></i>Calendrier</a>
+      <a href="#enigmes" id="navEnig" hidden><i class="fi fi-br-key"></i>Énigmes</a>
       <a href="#regles"><i class="fi fi-br-book-open-cover"></i>Règles</a>
       <a class="btn btn-primary btn-sm" href="#jeu"><i class="fi fi-br-play"></i>Jouer</a>
     </nav>
@@ -419,6 +448,17 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
     </div>
   </section>
 
+  <section class="enig" id="enigmes" hidden>
+    <div class="container">
+      <div class="sec-h">
+        <span class="kicker"><i class="fi fi-br-key"></i>Les fragments</span>
+        <h2>Les énigmes du Dédale</h2>
+      </div>
+      <p class="enig-intro">Sur la dernière dalle, des fragments d’inscription refont surface. Chacun cache un mot : trouve-le et écris-le ici. Si c’est le bon, le fragment te livre son secret. Envoie alors ta réponse en message privé à Lowgrick : une fois validée, elle s’affichera ici pour tout le monde, et le fragment suivant apparaîtra le vendredi de cours suivant, à 20 h 30.</p>
+      <div class="frags" id="frags"></div>
+    </div>
+  </section>
+
   <section class="rules" id="regles">
     <div class="container">
       <div class="sec-h">
@@ -464,7 +504,7 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
 </footer>
 
 <div class="toast" id="toast" role="status" hidden>
-  <i class="fi fi-br-sparkles"></i><span>Une nouvelle flèche vient d’être publiée !</span>
+  <i class="fi fi-br-sparkles"></i><span id="toastT">Une nouvelle flèche vient d’être publiée !</span>
   <button class="btn btn-primary btn-sm" id="reload" type="button"><i class="fi fi-br-rotate-right"></i>Actualiser</button>
 </div>
 
@@ -526,14 +566,18 @@ function tick(){
   $("nextIn").textContent=t-Date.now()>0?dans(t-Date.now()):"Publication imminente…";
 }
 tick();setInterval(tick,30000);
-// Page restée ouverte après 20 h 30 : on vérifie toutes les 2 minutes si la nouvelle flèche est en ligne.
+// Page restée ouverte : on vérifie toutes les 2 minutes si une nouvelle flèche (après 20 h 30) ou un changement
+// des énigmes (fragment trouvé ou nouveau fragment, à toute heure) est en ligne.
+const enigSig=m=>JSON.stringify(m.enigmes?m.enigmes.liste.map(e=>e.n+e.etat):null);
 async function checkUpdate(){
-  const f=M.fridays[posted];
-  if(!f||Date.now()<new Date(f+"T20:30:00")||!$("toast").hidden)return;
+  const f=M.fridays[posted],flecheDue=f&&Date.now()>=new Date(f+"T20:30:00");
+  if((!flecheDue&&!M.enigmes)||!$("toast").hidden||document.hidden)return;
   try{
     const h=await (await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"})).text();
-    const m=h.match(/const M=(\{.*\});/);
-    if(m&&JSON.parse(m[1]).posted>posted)$("toast").hidden=false;
+    const m=h.match(/const M=(\{.*\});/);if(!m)return;
+    const nv=JSON.parse(m[1]);
+    if(nv.posted>posted){$("toastT").textContent="Une nouvelle flèche vient d’être publiée !";$("toast").hidden=false;}
+    else if(enigSig(nv)!==enigSig(M)){$("toastT").textContent="Du nouveau dans les énigmes du Dédale !";$("toast").hidden=false;}
   }catch{}
 }
 setInterval(checkUpdate,120000);
@@ -725,6 +769,87 @@ form.addEventListener("submit",async ev=>{
   code.value="";dlg.close();
   applySolution();setShown(true);track("code_prof_ok",{prof:"oui"});
 });
+
+// Énigmes : chaque fragment ouvert ne contient sa réponse que chiffrée. La réponse saisie, mise en forme (norm),
+// sert de clé (PBKDF2 + AES-GCM) : si elle déchiffre une des versions, c'est une réponse acceptée.
+const E=M.enigmes;
+const ROM=["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+const roman=n=>ROM[n-1]||String(n);
+// Même mise en forme que normaliser() dans enigmes.mjs : les deux doivent rester identiques.
+const ARTICLES=new Set(["le","la","les","l","un","une","des","du","de","d"]);
+function norm(s){
+  const mots=String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/œ/g,"oe").replace(/æ/g,"ae").split(/[^a-z0-9]+/).filter(Boolean);
+  if(mots.length>1&&ARTICLES.has(mots[0]))mots.shift();
+  return mots.map(m=>m.length>3&&m.endsWith("s")?m.slice(0,-1):m).join("");
+}
+async function essayer(e,rep){
+  const s=crypto.subtle,k=norm(rep);if(!k)return null;
+  const km=await s.importKey("raw",new TextEncoder().encode(k),"PBKDF2",false,["deriveKey"]);
+  const key=await s.deriveKey({name:"PBKDF2",salt:b64(e.sel),iterations:e.iter,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
+  for(const x of e.essais){
+    try{return JSON.parse(new TextDecoder().decode(await s.decrypt({name:"AES-GCM",iv:b64(x.iv)},key,b64(x.ct))));}catch{}
+  }
+  return null;
+}
+const fmtJour=new Intl.DateTimeFormat("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+const mk=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!=null)x.textContent=txt;return x;};
+function reponseBox(r,suite){
+  const a=mk("div","frag-a");
+  a.append(mk("small",null,"La réponse"),mk("strong",null,r.mot));
+  if(suite)a.append(suite);
+  return a;
+}
+const memo=n=>"dedale-enigme-"+n;
+function carte(e){
+  const art=mk("article","panel frag"),h=mk("div","frag-h"),t=mk("h3");
+  t.innerHTML='<i class="fi fi-br-key"></i>';t.append("Fragment "+roman(e.n));
+  const chip=mk("span","chip"+(e.etat==="resolue"?" ok":""),e.etat==="resolue"?"Trouvé":"À résoudre");
+  h.append(t,chip);art.append(h,mk("p","frag-q",e.texte));
+  if(e.etat==="resolue"){art.append(reponseBox(e));return art;}
+  const f=mk("form","frag-f"),inp=mk("input"),btn=mk("button","btn btn-primary"),msg=mk("p","frag-msg");
+  inp.type="text";inp.placeholder="Ta réponse";inp.autocomplete="off";inp.spellcheck=false;inp.setAttribute("autocapitalize","off");
+  inp.setAttribute("aria-label","Ta réponse au fragment "+roman(e.n));
+  btn.type="submit";btn.innerHTML='<i class="fi fi-br-unlock"></i>Proposer';
+  msg.setAttribute("aria-live","polite");
+  f.append(inp,btn);art.append(f,msg);
+  const gagne=(r,brut,fete)=>{
+    f.remove();msg.remove();chip.textContent="Tu l’as trouvé";chip.classList.add("ok");
+    const mp=mk("p","mp","Envoie ta réponse en message privé à Lowgrick : une fois validée, elle s’affichera ici pour tout le monde et ouvrira le fragment suivant.");
+    art.append(reponseBox(r,mp));
+    try{localStorage.setItem(memo(e.n),brut);}catch{}
+    if(fete)track("enigme_trouvee",{enigme:e.n});
+  };
+  f.addEventListener("submit",async ev=>{
+    ev.preventDefault();
+    if(!window.crypto||!crypto.subtle){msg.className="frag-msg ko";msg.textContent="Vérification impossible ici : ouvre la page en https (GitHub Pages).";return;}
+    if(!norm(inp.value)){inp.focus();return;}
+    btn.disabled=inp.disabled=true;msg.className="frag-msg";msg.textContent="Le Dédale examine ta réponse…";
+    let r=null;try{r=await essayer(e,inp.value);}catch{}
+    btn.disabled=inp.disabled=false;
+    if(r){gagne(r,inp.value,true);return;}
+    msg.className="frag-msg ko";msg.textContent="Ce n’est pas le mot que cache ce fragment.";inp.select();
+    track("enigme_fausse",{enigme:e.n});
+  });
+  // Réponse déjà trouvée sur cet appareil : on la réaffiche (sans la compter à nouveau).
+  let deja=null;try{deja=localStorage.getItem(memo(e.n));}catch{}
+  if(deja&&window.crypto&&crypto.subtle)essayer(e,deja).then(r=>{if(r)gagne(r,deja,false);}).catch(()=>{});
+  return art;
+}
+function verrou(p){
+  const art=mk("article","panel frag lock"),ico=mk("span","ico"),d=mk("div");
+  ico.innerHTML='<i class="fi fi-br-lock"></i>';
+  let quand;
+  if(p.date){const s=fmtJour.format(new Date(p.date+"T12:00:00"));quand="Apparaîtra le "+s+" à 20 h 30.";}
+  else quand="Apparaîtra le vendredi de cours qui suit la découverte du fragment "+roman(p.n-1)+".";
+  d.append(mk("strong",null,"Fragment "+roman(p.n)+" · verrouillé"),mk("p",null,quand));
+  art.append(ico,d);return art;
+}
+if(E&&E.liste.length){
+  $("enigmes").hidden=false;$("navEnig").hidden=false;
+  const box=$("frags");
+  E.liste.forEach(e=>box.appendChild(carte(e)));
+  if(E.prochaine)box.appendChild(verrou(E.prochaine));
+}
 </script>
 </body>
 </html>

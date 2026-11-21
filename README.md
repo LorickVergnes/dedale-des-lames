@@ -7,7 +7,8 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 
 1. **Settings → Secrets and variables → Actions → New repository secret**, créer :
    - `SOLUTION_JSON` : le contenu de `prive/solution.json` (pour chaque niveau, les 20 cases du chemin dans l’ordre des vendredis, de la case de départ à celle qui saute vers la sortie) ;
-   - `REVEAL_PASSWORD` : le code prof (au moins 12 caractères, idéalement 4 ou 5 mots au hasard).
+   - `REVEAL_PASSWORD` : le code prof (au moins 12 caractères, idéalement 4 ou 5 mots au hasard) ;
+   - `ENIGMES_JSON` (facultatif) : le contenu de `prive/enigmes.json` (voir « Énigmes » plus bas).
 2. **Settings → Pages → Build and deployment → Source : GitHub Actions.**
 3. **Actions → Publier le Dédale des Lames → Run workflow** pour la première publication.
 
@@ -17,7 +18,16 @@ La solution complète n'est jamais dans le dépôt : elle vient d'un secret, et 
 2. Dans Clarity, **Settings → Setup → Cookies : désactivé**, et **Masking : Strict**.
 3. Sur GitHub, **Settings → Secrets and variables → Actions → onglet Variables → New repository variable** : `CLARITY_ID` = le Project ID. Puis relancer l'Action.
 
-Événements envoyés : `visite`, `depart`, `victoire`, `victoire_parfaite` (20 sauts, aucun retour, aucun nouveau départ), `victoire_rejouee`, `code_prof_faux`, `code_prof_ok`.
+Événements envoyés : `visite`, `depart`, `victoire`, `victoire_parfaite` (20 sauts, aucun retour, aucun nouveau départ), `victoire_rejouee`, `code_prof_faux`, `code_prof_ok`, `enigme_trouvee`, `enigme_fausse` (avec l'étiquette `enigme`, le numéro ; la réponse tapée n'est jamais envoyée).
+
+## Énigmes
+
+- Les énigmes sont dans `prive/enigmes.json` (privé) et dans le secret `ENIGMES_JSON` : pour chacune, `texte`, `mot` (la réponse affichée) et `reponses` (toutes les réponses acceptées). Après chaque modification, recopier le fichier dans le secret.
+- Une réponse est comparée après mise en forme : majuscules, accents, espaces, tirets, article au début (« le », « la », « l’ »…) et « s » final de chaque mot ne comptent pas. « Les Ligatures » = « ligature ». Il suffit donc de lister les mots vraiment différents (« alterner », « alternance »…).
+- Tant qu'une énigme n'est pas trouvée, sa réponse n'est dans la page que chiffrée (une bonne réponse sert de clé). Les énigmes pas encore sorties n'y sont pas du tout.
+- **Sortie** : la 1re le premier vendredi ; chaque suivante le premier vendredi de cours à 20 h 30 qui suit la découverte de la précédente (rien pendant les vacances).
+- **Valider une énigme** (quand un joueur envoie la bonne réponse en message privé) : **Actions → Publier le Dédale des Lames → Run workflow**, remplir le numéro de l'énigme (et la date et l'heure de la découverte si elle date d'avant). L'Action l'ajoute dans `enigmes-trouvees.json`, le commite et republie : la réponse s'affiche pour tout le monde, et la suivante est programmée. Pour corriger une erreur, modifier `enigmes-trouvees.json` directement sur GitHub (le commit republie la page).
+- En local : `ENIGME=1 node valider-enigme.mjs` fait la même chose sans commiter.
 Étiquettes : `niveau` (`facile`, `moyen` ou `difficile`), `case_depart`, `departs`, `sauts_victoire`, `sauts_total`, `annulations`, `recommencements`, `duree_s`, `sans_erreur`, `fleches_publiees`, `prof`.
 
 ## Règles et générateur

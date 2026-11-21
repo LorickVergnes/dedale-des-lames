@@ -6,6 +6,7 @@
 // sont publiées, sans la case correspondante ; la solution complète est chiffrée (AES-256-GCM, clé dérivée du code par PBKDF2).
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { randomBytes, pbkdf2Sync, createCipheriv } from "node:crypto";
+import { normaliser, parisNow, lireTrouvees, lireEnigmes, dateDeSortie, SORTIE } from "./enigmes.mjs";
 
 const fail = (msg) => { console.error("Erreur : " + msg); process.exit(1); };
 const clean = (s) => s.replace(/^﻿/, "").trim(); // retire BOM et retours à la ligne
@@ -53,16 +54,44 @@ function jumpDirsOf({ id, grid, rotation }) {
 const jumpDirs = Object.fromEntries(levels.map((l) => [l.id, jumpDirsOf(l)]));
 
 // Chaque flèche sort le vendredi à 20 h 30, heure de Paris. BUILD_DATE ("2027-01-15" ou "2027-01-15 20:30") simule une date.
-const RELEASE = "20:30";
-const parisNow = () => {
-  const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
-  }).formatToParts(new Date()).map((x) => [x.type, x.value]));
-  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`;
-};
+const RELEASE = SORTIE;
 const bd = process.env.BUILD_DATE;
 const today = bd ? (bd.length === 10 ? bd + " 23:59" : bd) : parisNow();
 const posted = fridays.filter((f) => `${f} ${RELEASE}` <= today).length;
+
+// Énigmes (facultatives) : le texte vient du secret ENIGMES_JSON (ou prive/enigmes.json), les énigmes trouvées de
+// enigmes-trouvees.json. Une énigme n'entre dans la page qu'à sa sortie. Tant qu'elle n'est pas trouvée, sa réponse
+// n'y est que chiffrée : chaque réponse acceptée (mise en forme) est une clé qui la déchiffre.
+const ENIG_ITER = 400000;
+function chiffrerAvec(mdp, sel, obj) {
+  const iv = randomBytes(12), c = createCipheriv("aes-256-gcm", pbkdf2Sync(mdp, sel, ENIG_ITER, 32, "sha256"), iv);
+  const ct = Buffer.concat([c.update(JSON.stringify(obj), "utf8"), c.final(), c.getAuthTag()]);
+  return { iv: iv.toString("base64"), ct: ct.toString("base64") };
+}
+let enigmes = null;
+const enigmesTxt = fromEnvOrFile("ENIGMES_JSON", "prive/enigmes.json");
+if (!enigmesTxt) console.warn("Pas d'énigmes (secret ENIGMES_JSON ou prive/enigmes.json absent) : la zone Énigmes est masquée.");
+else {
+  let liste, trouvees;
+  try { liste = lireEnigmes(enigmesTxt); trouvees = lireTrouvees(); } catch (e) { fail(e.message); }
+  const sorties = liste.map((_, i) => dateDeSortie(i, trouvees, fridays));
+  const visibles = [];
+  for (let i = 0; i < liste.length; i++) {
+    if (!sorties[i] || `${sorties[i]} ${RELEASE}` > today) break; // les suivantes attendent celle-ci
+    const { texte, mot, reponses } = liste[i], t = trouvees[String(i + 1)];
+    const affiche = mot || reponses[0];
+    if (t) visibles.push({ n: i + 1, texte, etat: "resolue", mot: affiche });
+    else {
+      const sel = randomBytes(16), cles = [...new Set(reponses.map(normaliser))];
+      visibles.push({ n: i + 1, texte, etat: "ouverte", iter: ENIG_ITER, sel: sel.toString("base64"),
+        essais: cles.map((k) => chiffrerAvec(k, sel, { mot: affiche })) });
+    }
+  }
+  const k = visibles.length;
+  enigmes = { total: liste.length, liste: visibles,
+    // prochaine énigme : sa date si la précédente est trouvée, sinon null (elle attend la découverte)
+    prochaine: k < liste.length ? { n: k + 1, date: sorties[k] } : null };
+}
 
 const iter = 600000, salt = randomBytes(16), iv = randomBytes(12);
 const key = pbkdf2Sync(password, salt, iter, 32, "sha256");
@@ -76,6 +105,7 @@ const data = {
   // seulement les directions, jamais les cases : une flèche par niveau et par vendredi
   revealed: Object.fromEntries(levels.map((l) => [l.id, jumpDirs[l.id].slice(0, posted)])),
   enc: { iter, salt: salt.toString("base64"), iv: iv.toString("base64"), ct: ct.toString("base64") },
+  enigmes,
 };
 // Microsoft Clarity : ajouté seulement si la variable CLARITY_ID est définie (en ligne), pas en local.
 const clarityId = clean(process.env.CLARITY_ID || "");
@@ -90,6 +120,10 @@ if (!html.includes("<!--CLARITY-->")) fail("marqueur <!--CLARITY--> introuvable 
 mkdirSync("dist", { recursive: true });
 writeFileSync("dist/index.html", html
   .replace("<!--CLARITY-->", () => claritySnippet)
-  .replace("/*DATA*/null", () => JSON.stringify(data)));
-console.log(`dist/index.html construit le ${today} : ${posted}/${fridays.length} flèches publiées` +
+  // « < » échappé : un texte d'énigme ne peut pas fermer la balise <script>
+  .replace("/*DATA*/null", () => JSON.stringify(data).replace(/</g, "\\u003c")));
+const resumeEnigmes = enigmes
+  ? `, énigmes ${enigmes.liste.length}/${enigmes.total} sorties (${enigmes.liste.filter((e) => e.etat === "resolue").length} trouvées)`
+  : "";
+console.log(`dist/index.html construit le ${today} : ${posted}/${fridays.length} flèches publiées${resumeEnigmes}` +
   (clarityId ? ", avec Clarity." : ", sans Clarity."));
