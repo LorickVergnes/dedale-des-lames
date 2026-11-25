@@ -299,6 +299,13 @@ dialog.modal{width:min(420px,calc(100% - 32px));padding:0;border:1px solid var(-
 dialog.modal::backdrop{background:rgba(4,5,10,.7);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
 .modal form{padding:24px;display:grid;gap:14px}
+/* Fausse victoire après 3 mauvaises réponses à un fragment */
+dialog.modal.troll{width:min(560px,calc(100% - 32px))}
+.troll-c{padding:24px;display:grid;gap:14px}
+.troll .modal-h>.fi{background:var(--amberA);color:var(--amber)}
+.troll-v{position:relative;aspect-ratio:16/9;border-radius:var(--r-md);overflow:hidden;background:#000}
+.troll-v iframe,.troll-v video{position:absolute;inset:0;width:100%;height:100%;border:0}
+.troll-v:empty{display:none}
 .modal-h{display:flex;align-items:flex-start;gap:14px}
 .modal-h>.fi{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--cyanA);color:var(--cyan);font-size:18px}
 .modal h3{margin:2px 0 2px;font:700 20px var(--f-display);text-transform:uppercase}
@@ -525,6 +532,17 @@ dialog.modal[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
       <button class="btn btn-primary btn-sm" id="ok" type="submit"><i class="fi fi-br-unlock"></i>Valider</button>
     </div>
   </form>
+</dialog>
+
+<dialog class="modal troll" id="troll" aria-labelledby="trollT">
+  <div class="troll-c">
+    <div class="modal-h">
+      <i class="fi fi-br-trophy" id="trollI"></i>
+      <div><h3 id="trollT">Félicitations !</h3><p id="trollP">Tu as percé le secret de ce fragment…</p></div>
+      <button class="x" id="trollX" type="button" aria-label="Fermer"><i class="fi fi-br-cross-small"></i></button>
+    </div>
+    <div class="troll-v" id="trollV"></div>
+  </div>
 </dialog>
 
 <script>
@@ -829,11 +847,72 @@ function carte(e){
     if(r){gagne(r,inp.value,true);return;}
     msg.className="frag-msg ko";msg.textContent="Ce n’est pas le mot que cache ce fragment.";inp.select();
     track("enigme_fausse",{enigme:e.n});
+    // Le piège ne se déclenche qu'une fois par navigateur (mémorisé dans localStorage).
+    if(dejaRR())return;
+    if(++fausses>=3){fausses=0;inp.value="";msg.textContent="";marquerRR();troll();track("enigme_rickroll",{enigme:e.n});}
+    else if(fausses===2)prechargerRR();
   });
+  let fausses=0;
   // Réponse déjà trouvée sur cet appareil : on la réaffiche (sans la compter à nouveau).
   let deja=null;try{deja=localStorage.getItem(memo(e.n));}catch{}
   if(deja&&window.crypto&&crypto.subtle)essayer(e,deja).then(r=>{if(r)gagne(r,deja,false);}).catch(()=>{});
   return art;
+}
+// 3 mauvaises réponses d'affilée à un fragment : « Félicitations ! », la vidéo démarre 1,5 s plus tard, puis le titre
+// devient « Ah bah non en fait » 1,5 s après le début de la lecture. La vidéo est préchargée dès la 2e erreur.
+let trollT=0,rr=null,rrKo=false,rrFait=false;
+const RR_MEMO="dedale-rickroll";
+const dejaRR=()=>{if(rrFait)return true;try{return localStorage.getItem(RR_MEMO)==="1";}catch{return false;}};
+const marquerRR=()=>{rrFait=true;try{localStorage.setItem(RR_MEMO,"1");}catch{}};
+const RR_DELAI=1500;
+function ahBahNon(){
+  if(!$("troll").open)return;
+  $("trollI").className="fi fi-br-play";$("trollT").textContent="Ah bah non en fait";
+  $("trollP").textContent="Toujours pas le bon mot. Mais ça, tu ne l’avais pas vu venir.";
+}
+const ahBahNonBientot=()=>{clearTimeout(trollT);trollT=setTimeout(ahBahNon,RR_DELAI);};
+// Secours si la vidéo locale manque : YouTube.
+function youtube(){
+  const f=mk("iframe");
+  f.src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0";
+  f.title="Never Gonna Give You Up";f.allow="autoplay; encrypted-media; picture-in-picture";f.allowFullscreen=true;
+  $("trollV").replaceChildren(f);ahBahNonBientot();
+}
+// Vidéo locale (media/rickroll.mp4, copiée dans dist par build.mjs), chargée une seule fois et réutilisée.
+function prechargerRR(){
+  if(rr)return;
+  rr=mk("video");
+  rr.controls=rr.playsInline=rr.loop=true;rr.preload="auto";
+  rr.addEventListener("error",()=>{rrKo=true;if($("trollV").contains(rr))youtube();});
+  rr.src="media/rickroll.mp4";rr.load();
+}
+function troll(){
+  const d=$("troll");
+  $("trollI").className="fi fi-br-trophy";$("trollT").textContent="Félicitations !";
+  $("trollP").textContent="Tu as percé le secret de ce fragment…";$("trollV").replaceChildren();
+  prechargerRR();
+  d.showModal();
+  clearTimeout(trollT);
+  trollT=setTimeout(()=>{
+    if(!d.open)return;
+    if(rrKo){youtube();return;}
+    rr.currentTime=0;
+    $("trollV").replaceChildren(rr);
+    rr.onplaying=()=>{rr.onplaying=null;ahBahNonBientot();};
+    // Lecture automatique refusée par le navigateur : le titre change quand même.
+    rr.play().catch(()=>{if(!rrKo)ahBahNonBientot();});
+  },RR_DELAI);
+}
+{
+  const d=$("troll");
+  const fermer=()=>d.close();
+  $("trollX").addEventListener("click",fermer);
+  d.addEventListener("click",ev=>{if(ev.target===d)fermer();});
+  d.addEventListener("close",()=>{
+    clearTimeout(trollT);
+    if(rr){rr.onplaying=null;rr.pause();}
+    $("trollV").replaceChildren();
+  });
 }
 function verrou(p){
   const art=mk("article","panel frag lock"),ico=mk("span","ico"),d=mk("div");

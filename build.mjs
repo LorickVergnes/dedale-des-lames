@@ -4,7 +4,7 @@
 // Trois niveaux, chacun avec sa grille et son chemin. Pour chaque niveau, la flèche du vendredi n° i est la direction réelle du saut n° i
 // (flèche de la case, tournée selon la règle de rotation pour le niveau difficile). Seules celles dont la date est passée (heure de Paris)
 // sont publiées, sans la case correspondante ; la solution complète est chiffrée (AES-256-GCM, clé dérivée du code par PBKDF2).
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync } from "node:fs";
 import { randomBytes, pbkdf2Sync, createCipheriv } from "node:crypto";
 import { normaliser, parisNow, lireTrouvees, lireEnigmes, dateDeSortie, SORTIE } from "./enigmes.mjs";
 
@@ -122,6 +122,8 @@ writeFileSync("dist/index.html", html
   .replace("<!--CLARITY-->", () => claritySnippet)
   // « < » échappé : un texte d'énigme ne peut pas fermer la balise <script>
   .replace("/*DATA*/null", () => JSON.stringify(data).replace(/</g, "\\u003c")));
+// Médias de la page (ex. media/rickroll.mp4 pour le piège des énigmes) : copiés tels quels dans dist/media.
+if (existsSync("media")) cpSync("media", "dist/media", { recursive: true });
 const resumeEnigmes = enigmes
   ? `, énigmes ${enigmes.liste.length}/${enigmes.total} sorties (${enigmes.liste.filter((e) => e.etat === "resolue").length} trouvées)`
   : "";
