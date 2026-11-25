@@ -68,6 +68,10 @@ jobs:
         with:
           path: dist
           name: github-pages-${{ github.run_attempt }}
+      # GitHub met parfois quelques secondes à lister l'archive qui vient d'être envoyée : sans cette pause,
+      # deploy-pages peut répondre « No artifacts named github-pages-N were found ».
+      - name: Laisser GitHub enregistrer l'archive
+        run: sleep 15
       - id: deployment
         uses: actions/deploy-pages@v4
         with:
